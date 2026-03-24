@@ -1,0 +1,100 @@
+%=====================================================================
+% FILE: doc/latex/flux_and_spectrum_definitions.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    flux_and_spectrum_definitions.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: Definitions of flux / intensity / spectra and unit conventions.
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error flux_and_spectrum_definitions.tex
+% OUTPUT:
+%   ../flux_and_spectrum_definitions.pdf
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Flux and Spectrum Definitions Used by AMPS}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Differential intensity (``differential flux'')}
+Throughout the AMPS interface, the particle spectrum is specified as a \emph{differential directional intensity}
+\begin{equation}
+  J(E) \equiv \frac{dN}{dA\,dt\,d\Omega\,dE},
+\end{equation}
+with units typically
+\begin{equation}
+  J(E)\;[\text{p}~\text{cm}^{-2}\,\text{s}^{-1}\,\text{sr}^{-1}\,(\text{MeV}/\text{n})^{-1}].
+\end{equation}
+If you are working in SI, replace cm$^{-2}$ with m$^{-2}$.
+
+\paragraph{Energy per nucleon.}
+For ions, AMPS commonly uses $E$ in \si{MeV/nucleon}. This makes spectral shapes comparable across species.
+
+\section{Integral flux and pfu}
+NOAA/SWPC frequently reports integral proton fluxes above a threshold energy,
+\begin{equation}
+  F(>E_0) = \int_{E_0}^{\infty} J(E)\,dE,
+\end{equation}
+often in ``pfu'' where
+\begin{equation}
+  1~\text{pfu} = 1~\text{proton}~\text{cm}^{-2}\,\text{s}^{-1}\,\text{sr}^{-1} \quad \text{(integral)}.
+\end{equation}
+When fitting spectra to integral channels, AMPS performs the above integral of the chosen model.
+
+\section{Rigidity spectra and variable changes}
+Some literature expresses spectra in rigidity $R$:
+\begin{equation}
+  J_R(R) = \frac{dN}{dA\,dt\,d\Omega\,dR}.
+\end{equation}
+Conversion uses $J_R(R) = J_E(E)\,\left|\frac{dE}{dR}\right|$.
+Because $R = pc/(Ze)$, $E(R)$ depends on species mass and charge.
+
+\section{Omnidirectional flux}
+The omnidirectional differential flux is
+\begin{equation}
+  j(E) = \int J(E,\Omega)\,d\Omega.
+\end{equation}
+If the distribution is isotropic, $j(E)=4\pi J(E)$.
+AMPS supports anisotropic source models, so the $4\pi$ factor should only be used when justified.
+
+\section{How the interface expects spectra}
+\begin{itemize}
+  \item You select a spectrum \emph{model} (power law, cutoff, Band, LIS force-field, or table).
+  \item You enter parameters in the units displayed by the UI.
+  \item The preview shows $J(E)$, and AMPS expects $J(E)$ in the input file.
+\end{itemize}
+
+\section{References (selected)}
+\begin{itemize}
+  \item Grieder, P. K. F. (2001). \emph{Cosmic Rays at Earth}. (Rigidity and intensity conventions.)
+  \item NOAA/SWPC. ``GOES Proton Flux'' product documentation (pfu conventions).
+\end{itemize}
+
+\end{document}

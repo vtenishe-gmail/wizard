@@ -1,0 +1,111 @@
+%=====================================================================
+% FILE: doc/latex/magnetic_field_models.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    magnetic_field_models.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: Documentation of magnetic field models exposed in the interface.
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error magnetic_field_models.tex
+% OUTPUT:
+%   ../magnetic_field_models.pdf
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Magnetic Field Models for Geospace Particle Tracing}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Total field representation}
+AMPS typically represents the magnetic field as
+\begin{equation}
+  \mathbf{B}(\mathbf{r},t) = \mathbf{B}_{\mathrm{int}}(\mathbf{r},t) + \mathbf{B}_{\mathrm{ext}}(\mathbf{r},t),
+\end{equation}
+where $\mathbf{B}_{\mathrm{int}}$ is the internal (main) field and $\mathbf{B}_{\mathrm{ext}}$ is the magnetospheric current system contribution.
+
+\section{Internal field (IGRF / dipole)}
+For most applications, $\mathbf{B}_{\mathrm{int}}$ is modeled using IGRF (or a dipole approximation for sensitivity testing).
+The internal field provides the dominant contribution near Earth and controls low-altitude cutoffs.
+
+\section{Empirical external field models (Tsyganenko family)}
+Empirical models represent $\mathbf{B}_{\mathrm{ext}}$ using parametrizations constrained by spacecraft observations.
+Typical inputs are solar-wind dynamic pressure, IMF $B_y/B_z$, Dst, and/or Kp.
+
+\subsection*{T96}
+Tsyganenko (1996) provides a widely used external field model suitable for many cutoff studies.
+
+\subsection*{TS05 (Tsyganenko \& Sitnov 2005) / TA15 (Tsyganenko--Andreeva 2015)}
+Storm-time models incorporate additional drivers and are designed to capture disturbed intervals.
+For SEP cutoff calculations, these models are often preferred for event-realistic reconstructions and strong-storm sensitivity tests.
+
+\paragraph{Driver sets.} In this interface, the "TS05" model is configured with the common scalar drivers
+(Dst or SYM-H, solar-wind dynamic pressure $P_{dyn}$, IMF $B_x/B_y/B_z$, solar-wind $V_x$ and density $N$) and an \texttt{EPOCH} time tag.
+The underlying TS05 formulation is \emph{dynamical}: the magnitudes of major current systems are driven by six history-dependent variables $W_1..W_6$,
+each computed as a relaxation integral/sum over the prior solar-wind/IMF conditions. Tsyganenko \& Sitnov (2005) define (their Eq.\,(7--8))
+a generic form
+\begin{equation}
+W(t_i)=\frac{r}{12}\sum_{k=1}^{i} S_k\exp\left[\frac{r}{60}(t_k-t_i)\right],\qquad
+S_k = \left(\frac{N_k}{5}\right)^{\ell}\left(\frac{V_k}{400}\right)^{b}\left(\frac{B_{s,k}}{5}\right)^{g},
+\end{equation}
+with module-specific exponents and relaxation rates. This is why TS05 is best driven from an OMNI-style time series (5-min cadence).
+
+\paragraph{OMNI/TS05 record format.} A commonly used dataset is distributed as yearly files
+\texttt{YYYY\_OMNI\_5m\_with\_TS05\_variables.dat}, where each 5-min record contains
+IMF ($B_x,B_y,B_z$), solar-wind velocity components, density, temperature, \texttt{SYM-H}, availability flags, dipole tilt angle (radians), $P_{dyn}$ (nPa),
+and the six TS05 driving variables $W_1..W_6$.
+
+\paragraph{Parameter presets (order-of-magnitude).} Quiet solar wind typically corresponds to $P_{dyn}\sim1$--$3$ nPa, $|B_z|\lesssim 5$ nT, $V_x\sim-400$ km/s, $N\sim 3$--$10$ cm$^{-3}$;
+storm main-phase intervals commonly reach $P_{dyn}\sim5$--$15$ nPa, $B_z\sim-10$ to $-30$ nT, $V_x\sim-600$ to $-800$ km/s, and $\mathrm{Dst/SYM\mbox{-}H}\lesssim-100$ nT.
+
+\section{MHD-driven fields (BATSRUS / GAMERA)}
+For highest fidelity, AMPS can ingest a 3D time-dependent magnetic field from a global MHD model.
+In this mode:
+\begin{itemize}
+  \item The MHD solution provides $\mathbf{B}(\mathbf{r},t)$ (and optionally $\mathbf{E}$).
+  \item Particle tracing uses spatio-temporal interpolation on the MHD grid.
+  \item Boundary surfaces (magnetopause, inner boundary) should be consistent with the MHD domain.
+\end{itemize}
+This option is computationally heavier but can reproduce event-specific structures not captured by analytic fits.
+
+\section{Notes for cutoff calculations}
+\begin{itemize}
+  \item Using a storm-time external model (e.g., TS05/T15) can change $R_C$ by several GV at mid-latitudes.
+  \item Time dependence can be critical during rapid Dst changes; ensure $\Delta t$ in tracing resolves the driver cadence.
+  \item Consistency with the electric field model matters for drift trajectories, especially in the inner magnetosphere.
+\end{itemize}
+
+\section{References (selected)}
+\begin{itemize}
+  \item Tsyganenko, N. A. (1996). ``Effects of the solar wind conditions on the global magnetosphere configuration...'' \emph{JGR}.
+  \item Tsyganenko, N. A., \& Sitnov, M. I. (2005). (TS05). \emph{JGR}.
+  \item Tsyganenko, N. A., \& Andreeva, V. A. (2015). (T15). \emph{JGR}.
+\end{itemize}
+
+\end{document}

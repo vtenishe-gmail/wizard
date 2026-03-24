@@ -1,0 +1,94 @@
+%=====================================================================
+% FILE: doc/latex/overview_calculation_pipeline.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    overview_calculation_pipeline.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: High-level description of how the end-to-end calculations are done:
+%          - Upstream spectrum specification
+%          - Trajectory tracing through E/B fields
+%          - Rigidity cutoff computation
+%          - Flux mapping / attenuation to LEO
+%          - Optional reconstruction of upstream spectra from GOES
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error overview_calculation_pipeline.tex
+% OUTPUT:
+%   ../overview_calculation_pipeline.pdf
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{AMPS Geospace Radiation Pipeline: From Magnetopause Spectrum to LEO Flux and Cutoffs}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Pipeline overview}
+A typical run uses the following stages:
+\begin{enumerate}
+  \item Specify particle species and an upstream spectrum $J(E,t)$ at the outer boundary (usually the magnetopause).
+  \item Choose magnetic and electric field models $\mathbf{B}(\mathbf{r},t)$ and $\mathbf{E}(\mathbf{r},t)$.
+  \item Define the domain boundary (e.g., Shue magnetopause or a box) and inner loss boundary.
+  \item Perform trajectory tracing (forward for transport, or backward for cutoffs) through the fields.
+  \item Derive observables: cutoff rigidity $R_C$, access probability, and flux at the target altitude/location.
+\end{enumerate}
+
+\section{Equations of motion}
+Particles are advanced with the relativistic Lorentz force:
+\begin{align}
+  \frac{d\mathbf{r}}{dt} &= \mathbf{v},\\
+  \frac{d\mathbf{p}}{dt} &= q\,\bigl(\mathbf{E}(\mathbf{r},t) + \mathbf{v}\times\mathbf{B}(\mathbf{r},t)\bigr),\\
+  \mathbf{p} &= \gamma m \mathbf{v}, \qquad \gamma = \left(1-\frac{v^2}{c^2}\right)^{-1/2}.
+\end{align}
+
+\section{Cutoff rigidity computation (backtracing)}
+To compute cutoffs at a target location, AMPS backtraces particles launched with selected rigidities $R$ and direction $\hat{\mathbf{v}}$.
+For each $R$, the outcome is classified as \emph{allowed} or \emph{forbidden} based on whether the trajectory reaches the outer boundary without intersecting the loss boundary.
+Scanning across $R$ yields $R_L$, $R_U$, and the effective cutoff $R_C$.
+
+\section{Flux mapping}
+Given an upstream spectrum $J(E)$, the flux at a target can be estimated using transmissivity / access probability $T(E,\Omega)$:
+\begin{equation}
+  J_{\mathrm{target}}(E) = \int T(E,\Omega)\,J_{\mathrm{up}}(E,\Omega)\,d\Omega.
+\end{equation}
+In a deterministic backtracing approach, $T$ is approximated by the fraction of launched trajectories that are allowed for a given $(E,\Omega)$.
+
+\section{Reconstructing upstream spectra from GOES}
+If you want the upstream boundary condition to be event-specific, you can fit a parametric model $J(E;\boldsymbol{\theta}(t))$ to GOES channel data.
+The forward model integrates $J(E)$ over each channel's energy range (or response function), and the fit is repeated over time.
+
+\section{Outputs}
+Typical outputs include:
+\begin{itemize}
+  \item $R_L$, $R_U$, and $R_C$ (cutoff rigidity),
+  \item flux maps and time series at selected altitudes/locations,
+  \item access probability vs. energy/rigidity,
+  \item diagnostic trajectories.
+\end{itemize}
+
+\end{document}

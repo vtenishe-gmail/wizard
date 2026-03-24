@@ -1,0 +1,207 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Spectrum of Solar Energetic Particles at the Magnetopause: Isotropic and Anisotropic Boundary Conditions}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note summarizes practical boundary-condition models for the spectrum of solar energetic particles (SEPs) at the magnetopause. The main question is whether the boundary spectrum should be treated as isotropic or anisotropic. An isotropic spectrum is useful for verification and for strongly scattered late-time conditions, but it is usually not the most realistic description of SEP access into geospace. A more physical first-order model is a separable energy--angle spectrum,
+\begin{equation}
+J(E,\mu)=J_0(E)\,g(\mu),
+\end{equation}
+where $J_0(E)$ is the differential directional intensity as a function of energy and $g(\mu)$ prescribes the angular or pitch-angle dependence. The note explains the physical meaning of this form, when isotropy can be justified, and why anisotropy is often expected during SEP onset.
+\end{abstract}
+
+\section{Background}
+SEP transport is commonly formulated in terms of a focused transport equation for a distribution function that depends on position, momentum (or rigidity/energy), pitch-angle cosine, and time,
+\begin{equation}
+ f = f(\mathbf{x},p,\mu,t),
+\end{equation}
+where
+\begin{equation}
+ \mu \equiv \cos\alpha
+\end{equation}
+is the cosine of the pitch angle $\alpha$ relative to the local magnetic field direction. In this framework, anisotropy is not an optional detail: it is a basic property of SEP transport and scattering \cite{Kubo2015,Desai2016}. Early in an SEP event, particles often stream strongly along the interplanetary magnetic field, producing a beam-like pitch-angle distribution. Later, scattering can reduce the anisotropy, and the distribution may become closer to isotropic \cite{Desai2016,Davis2024}.
+
+For boundary conditions at the magnetopause, the physically relevant direction is not simply the Sun--Earth radial direction. Charged particles approach the geomagnetic field along trajectories shaped by the interplanetary magnetic field and by the asymptotic access directions imposed by the geomagnetic field. Therefore, an isotropic boundary condition is usually a modeling approximation rather than a literal statement about SEP arrival directions \cite{Desai2016,Larsen2023}.
+
+\section{Differential directional intensity}
+The natural quantity for specifying an SEP boundary spectrum is the differential directional intensity,
+\begin{equation}
+J(E,\Omega) \equiv \frac{dN}{dA\,dt\,d\Omega\,dE},
+\end{equation}
+with typical units
+\begin{equation}
+\left[ J \right] = \mathrm{cm^{-2}\,s^{-1}\,sr^{-1}\,MeV^{-1}}.
+\end{equation}
+If the distribution is isotropic, then $J$ is independent of direction and can be written simply as $J(E)$. The corresponding omnidirectional differential flux is
+\begin{equation}
+ j(E) = \int J(E,\Omega)\,d\Omega = 4\pi J(E)
+\end{equation}
+for an isotropic distribution.
+
+In geospace applications, density is often obtained from an isotropic intensity by
+\begin{equation}
+ n = 4\pi \int \frac{J(E)}{v(E)}\,dE,
+\end{equation}
+where $v(E)$ is the particle speed. This formula is valid only when the local distribution is isotropic, or when one intentionally defines $J(E)$ as the angle-averaged directional intensity used in a reduced model.
+
+\section{Isotropic boundary model}
+The simplest boundary condition is
+\begin{equation}
+J(E,\Omega)=J_0(E),
+\end{equation}
+that is, the directional intensity depends only on energy. This choice is useful in at least three situations:
+\begin{enumerate}
+  \item verification tests, because it produces a clean benchmark for cutoff shielding and density integration;
+  \item strongly scattered or late-time SEP conditions, when anisotropy is weaker;
+  \item applications where only an effective omnidirectional population is needed and directional information is not retained.
+\end{enumerate}
+
+A common practical form is a power law,
+\begin{equation}
+J_0(E)=J_{\mathrm{ref}}\left(\frac{E}{E_{\mathrm{ref}}}\right)^{-\gamma},
+\end{equation}
+possibly supplemented with an exponential rollover at high energy. Power laws over restricted energy ranges are widely used in SEP modeling and event reconstruction \cite{Desai2016,Papaioannou2022}.
+
+Although useful, isotropy is usually not the best physical assumption during SEP onset, because observations of SEP and ground-level enhancement (GLE) events frequently show strong angular anisotropy \cite{Mishev2021,Davis2024}.
+
+\section{Anisotropic boundary model}
+A more physical first-order model is to prescribe both the spectrum and the pitch-angle dependence,
+\begin{equation}
+J(E,\mu)=J_0(E)\,g(\mu).
+\label{eq:separable}
+\end{equation}
+Equation~(\ref{eq:separable}) is not a fundamental law. Rather, it is a practical ansatz that separates the energy dependence from the angular dependence. It is well motivated because SEP transport theory treats the particle population as a function of both energy (or momentum/rigidity) and pitch angle, and because event reconstructions often infer a rigidity or energy spectrum together with a separate pitch-angle distribution (PAD) \cite{Kubo2015,Mishev2021,Davis2024}.
+
+In this form,
+\begin{itemize}
+  \item $J_0(E)$ determines how the intensity varies with energy;
+  \item $g(\mu)$ determines how strongly particles are beamed or depleted as a function of pitch angle.
+\end{itemize}
+To preserve the meaning of $J_0(E)$ as the angle-averaged intensity, a convenient normalization is
+\begin{equation}
+\frac{1}{2}\int_{-1}^{1} g(\mu)\,d\mu = 1.
+\label{eq:norm}
+\end{equation}
+With this choice, $J_0(E)$ is the average over pitch angle in the field-aligned coordinate system.
+
+\subsection{Examples of angular factors}
+Several simple choices are useful:
+
+\paragraph{Isotropic case.}
+\begin{equation}
+g(\mu)=1.
+\end{equation}
+This reduces Eq.~(\ref{eq:separable}) to the isotropic model.
+
+\paragraph{Exponentially beamed PAD.}
+\begin{equation}
+g(\mu)=\frac{\kappa e^{\kappa\mu}}{\sinh\kappa},
+\end{equation}
+which satisfies Eq.~(\ref{eq:norm}). For $\kappa>0$, this distribution is beamed toward $\mu=+1$; larger $\kappa$ means a narrower beam.
+
+\paragraph{Gaussian PAD in pitch angle.}
+\begin{equation}
+g(\alpha) = A\exp\left[-\frac{(\alpha-\alpha_0)^2}{2\sigma^2}\right],
+\end{equation}
+where $A$ is chosen for normalization. Gaussian and double-Gaussian PADs are commonly used in GLE and SEP inversion studies \cite{Mishev2021,Davis2024}.
+
+\paragraph{Rigidity- or energy-dependent anisotropy.}
+The most general practical form is
+\begin{equation}
+J(E,\mu)=J_0(E)\,g(E,\mu),
+\end{equation}
+or equivalently in rigidity,
+\begin{equation}
+J(R,\mu)=J_0(R)\,g(R,\mu),
+\end{equation}
+because the PAD can vary with energy or rigidity in real events \cite{Davis2024}.
+
+\section{Why anisotropy is expected at the magnetopause}
+The SEP population observed near Earth is frequently anisotropic, especially near onset, because particles are accelerated near the Sun and propagate through the heliosphere under the combined effects of field-aligned streaming, focusing, and pitch-angle scattering. The preferred direction is typically related to the interplanetary magnetic field and to geomagnetic asymptotic access directions, not just to the Sun--Earth radial line \cite{Desai2016,Larsen2023}.
+
+In practical terms, this means that a magnetopause boundary condition for SEP access into geospace is often better represented by an anisotropic form such as Eq.~(\ref{eq:separable}) than by a purely isotropic spectrum. The isotropic model remains valuable as a controlled benchmark, but it should be interpreted as an effective approximation.
+
+\section{Recommended use in AMPS benchmark problems}
+For verification of density and cutoff calculations, it is useful to define two complementary benchmark cases:
+\begin{enumerate}
+  \item \textbf{Isotropic benchmark:}
+  \begin{equation}
+  J(E,\mu)=J_0(E),
+  \end{equation}
+  with $J_0(E)$ taken as a power law or tabulated spectrum. This case is simple and analytically transparent.
+
+  \item \textbf{Anisotropic benchmark:}
+  \begin{equation}
+  J(E,\mu)=J_0(E)\,g(\mu),
+  \end{equation}
+  with, for example,
+  \begin{equation}
+  J_0(E)=J_{\mathrm{ref}}\left(\frac{E}{E_{\mathrm{ref}}}\right)^{-\gamma},
+  \qquad
+  g(\mu)=\frac{\kappa e^{\kappa\mu}}{\sinh\kappa}.
+  \end{equation}
+  This retains a simple analytic spectrum while introducing a physically meaningful preferred direction.
+\end{enumerate}
+
+The isotropic benchmark is best for code verification. The anisotropic benchmark is better for physics studies of SEP access into the magnetosphere.
+
+\section{Conclusions}
+The SEP spectrum at the magnetopause need not be isotropic. Isotropy is a useful approximation for verification problems and for strongly scattered conditions, but a realistic boundary condition often requires directional structure. A separable form,
+\begin{equation}
+J(E,\mu)=J_0(E)\,g(\mu),
+\end{equation}
+is a practical and physically motivated way to prescribe that structure. It matches the variables used in focused SEP transport theory and aligns with common SEP/GLE reconstruction practice in which the energy or rigidity spectrum and the pitch-angle distribution are modeled separately. For AMPS documentation and benchmark design, it is therefore reasonable to present both isotropic and anisotropic magnetopause boundary conditions, with the latter preferred when directional effects are important.
+
+\begin{thebibliography}{99}
+
+\bibitem{Kubo2015}
+Y.~Kubo, M.~Zhang, J.~Giacalone, M.~Dr"oge, B.~Heber, and Y.~Kota,
+``Interplanetary particle transport simulation for warning system for aviation exposure to solar energetic particles,''
+\emph{Earth, Planets and Space}, vol.~67, article 104, 2015.
+\url{https://link.springer.com/article/10.1186/s40623-015-0260-9}
+
+\bibitem{Desai2016}
+M.~Desai and J.~Giacalone,
+``Large gradual solar energetic particle events,''
+\emph{Living Reviews in Solar Physics}, vol.~13, article 3, 2016.
+\url{https://link.springer.com/article/10.1007/s41116-016-0002-5}
+
+\bibitem{Mishev2021}
+A.~L.~Mishev, I.~G.~Usoskin, and A.~Kovaltsov,
+``Application of the verified neutron monitor yield function for an extended analysis of the ground level enhancement on 17 May 2012,''
+\emph{Space Weather}, vol.~19, e2020SW002626, 2021.
+\url{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2020SW002626}
+
+\bibitem{Larsen2023}
+N.~Larsen, A.~L.~Mishev, I.~G.~Usoskin, and collaborators,
+``A new open-source geomagnetosphere propagation tool for computing cutoff rigidity and asymptotic directions,''
+\emph{Journal of Geophysical Research: Space Physics}, vol.~128, e2022JA031061, 2023.
+\url{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2022JA031061}
+
+\bibitem{Davis2024}
+C.~S.~W.~Davis, N.~Larsen, A.~L.~Mishev, and collaborators,
+``AniMAIRE - A new openly available tool for calculating radiation dose rates experienced by aircraft during anisotropic solar energetic particle events,''
+\emph{Space Weather}, vol.~22, e2024SW003985, 2024.
+\url{https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024SW003985}
+
+\bibitem{Papaioannou2022}
+A.~Papaioannou, M.~Mavromichalaki, A.~Belov, and collaborators,
+``The first ground-level enhancement of solar cycle 25 on 28 October 2021,''
+\emph{Astronomy \& Astrophysics}, vol.~661, A37, 2022.
+\url{https://www.aanda.org/articles/aa/full_html/2022/04/aa42855-21/aa42855-21.html}
+
+\end{thebibliography}
+
+\end{document}

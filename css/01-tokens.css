@@ -1,0 +1,199 @@
+/*
+=====================================================================
+FILE: css/01-tokens.css
+INTENT:
+  Styling for the AMPS wizard static site. This stylesheet is part of a
+  layered CSS system: tokens → layout → components → diagrams.
+
+METHODS / DESIGN:
+  - Tokens (css/01-tokens.css): colors, spacing, font sizes.
+  - Layout (css/02-layout.css): page/grid/topbar/menus.
+  - Components (css/03-components.css): buttons, inputs, cards.
+  - Diagrams (css/04-diagrams.css): SVG/canvas-specific styling.
+
+IMPLEMENTATION NOTES:
+  - Keep selectors scoped and predictable (prefer class selectors).
+  - Match Help and Docs dropdown look & feel for UI consistency.
+  - When adding a new menu/panel, copy Help menu patterns to keep
+    interaction and typography consistent.
+
+LAST UPDATED: 2026-02-21
+=====================================================================
+*/
+/* =============================================================================
+   FILE:    css/01-tokens.css
+   PROJECT: AMPS CCMC Submission Interface  v3
+   PURPOSE: CSS custom-property design tokens.
+            Every colour, radius, shadow, font and z-index used across the
+            entire UI is declared here as a CSS variable so any future
+            re-skin only needs to touch this one file.
+
+   DESIGN LANGUAGE — "NASA Mission Control"
+     · Deep navy backgrounds  (#070e1c → #0d1a2e → #112240)
+     · Electric cyan/blue for interactive affordances (#1a88d4 / #38c0ff)
+     · Terminal green for validated / good state    (#2dd4a0)
+     · Amber / orange for warnings                 (#ff9a3c)
+     · Red for errors                              (#ff5a5a)
+     · Yellow for active / selected card highlight (#ffd04b)
+     · Purple for advanced / experimental features (#8b6ff7)
+
+   USAGE:   Imported first in index.html.
+            All other CSS files reference these tokens; never hardcode colours
+            in component files — always use var(--token-name).
+
+   LAST UPDATED: 2025
+=============================================================================*/
+/* ═══════════════════════════════════════════════════════════════════════════
+   AMPS CCMC — DESIGN TOKENS
+   All CSS custom properties (variables) for the entire interface.
+   Dark NASA mission-control aesthetic:
+     deep navy backgrounds · electric blue accents
+     terminal green for validated states · amber for warnings
+   Typography: IBM Plex Sans (UI) + IBM Plex Mono (data / code)
+═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* ── Background layers ── */
+  --bg-deep:    #070e1c;   /* page root — near-black navy */
+  --bg-panel:   #0d1a2e;   /* section cards / sidebar */
+  --bg-mid:     #112240;   /* slightly lighter panel variant */
+  --bg-inset:   #0a1628;   /* code blocks, input fields, SVG canvases */
+  --bg-hover:   #162a4a;   /* hover state overlay */
+
+  /* ── Borders ── */
+  --border:     #1a3358;   /* default border */
+  --border-lit: #1e4580;   /* hover / focus border */
+  --border-dim: #0f2240;   /* very subtle separator */
+
+  /* ── Brand & accent ── */
+  --accent:        #1a88d4;              /* primary interactive blue */
+  --accent-bright: #38c0ff;             /* highlights, column labels */
+  --accent-glow:   rgba(26,136,212,.25);/* focus ring */
+  --accent-dim:    rgba(26,136,212,.12);/* tinted background */
+
+  /* ── Semantic colours ── */
+  --green:      #2dd4a0;              /* validated / pass */
+  --green-dim:  rgba(45,212,160,.15); /* tinted green bg */
+  --orange:     #ff9a3c;              /* warning */
+  --orange-dim: rgba(255,154,60,.15);
+  --red:        #ff5a5a;              /* error / fatal */
+  --red-dim:    rgba(255,90,90,.1);
+  --yellow:     #ffd04b;              /* active selection */
+  --purple:     #8b6ff7;              /* Year-2 / experimental */
+  --cyan:       #36e4da;              /* info accent */
+
+  /* ── Text ── */
+  --text:       #e0eaf6;  /* primary body text */
+  --text-dim:   #6a88b0;  /* secondary / hint */
+  --text-muted: #3a5878;  /* very dim / disabled */
+  --text-bright:#ffffff;
+
+  /* ── Column colour tokens (trajectory & ts05 file diagrams) ── */
+  --col-year:  #38c0ff;   /* YYYY  — bright blue   */
+  --col-mon:   #5aeacf;   /* MM    — teal           */
+  --col-day:   #5aeacf;   /* DD    — teal           */
+  --col-hr:    #a8d8ff;   /* HH    — light blue     */
+  --col-min:   #a8d8ff;   /* mm    — light blue     */
+  --col-sec:   #c5e8ff;   /* ss.s  — pale blue      */
+  --col-lat:   #ff9a3c;   /* Lat   — orange         */
+  --col-lon:   #ffb866;   /* Lon   — light orange   */
+  --col-alt:   #ffd04b;   /* Alt   — yellow         */
+  --col-dst:   #ff5a5a;   /* Dst   — red            */
+  --col-pdyn:  #ff9a3c;   /* Pdyn  — orange         */
+  --col-bz:    #ff6b6b;   /* Bz    — red-orange     */
+  --col-vx:    #c5a0ff;   /* Vx    — purple         */
+  --col-nsw:   #8bb4ff;   /* Nsw   — light blue     */
+  --col-by:    #78d4ff;   /* By    — sky blue       */
+  --col-bx:    #78d4ff;   /* Bx    — sky blue       */
+
+  /* ── Typography ── */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace;
+
+  /* ── Geometry ── */
+  --radius:    6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.4);
+  --shadow:    0 4px 24px rgba(0,0,0,.6);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.8);
+
+  /* ── Transitions ── */
+  --t-fast:  0.15s ease;
+  --t-med:   0.25s ease;
+  --t-slow:  0.4s ease;
+
+  /* ── Z-index scale ── */
+  --z-base:    1;
+  --z-card:    10;
+  --z-sticky:  100;
+  --z-overlay: 200;
+  --z-modal:   300;
+}
+
+/* ── Global reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+/* scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-lit); }
+
+/* focus-visible ring for accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Wizard step disabled / N/A state (added 2026-02-21) ──────────
+ *  Applied to .wz-step elements that are auto-skipped due to a
+ *  constraint from another step.
+ *
+ *  Current usage:
+ *    Step 6 (E-Field) receives .step-disabled when S.fieldMethod
+ *    is 'GRIDLESS' (set in Step 2).
+ *
+ *  Applied by: applyFieldMethodConstraints() in js/02a-calcmode.js.
+ *
+ *  DESIGN: the step remains clickable — navigating to it shows the
+ *  panel with a gridless-overlay message explaining why E-field is
+ *  excluded.  The Next/Prev buttons skip step 6 automatically
+ *  (see goStep() in js/02-wizard.js), but direct clicks still work.
+ *
+ *  Visual treatment:
+ *    - opacity 0.35: clearly the dimmest element in the strip.
+ *    - cursor: default — less inviting than pointer, but still usable.
+ *    - Dashed bottom border instead of solid — signals "N/A".
+ *    - Strikethrough on number and label — "skipped" indicator.
+ *  The step is NOT added to S.done, so it keeps the default gray base.
+ * ────────────────────────────────────────────────────────────────── */
+.wz-step.step-disabled {
+  opacity: 0.35;
+  cursor: default;
+  border-bottom: 3px dashed var(--border) !important;
+}
+.wz-step.step-disabled .wz-num {
+  text-decoration: line-through;
+}
+.wz-step.step-disabled .wz-label {
+  text-decoration: line-through;
+}
+

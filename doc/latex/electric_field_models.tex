@@ -1,0 +1,101 @@
+%=====================================================================
+% FILE: doc/latex/electric_field_models.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    electric_field_models.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: Documentation of electric field models exposed in the interface.
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error electric_field_models.tex
+% OUTPUT:
+%   ../electric_field_models.pdf
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Electric Field Models Used for Particle Tracing}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Decomposition}
+In AMPS geospace transport runs, the total electric field is represented as a superposition
+\begin{equation}
+  \mathbf{E}(\mathbf{r},t) = \mathbf{E}_{\mathrm{cor}}(\mathbf{r},t) + \mathbf{E}_{\mathrm{conv}}(\mathbf{r},t) + \mathbf{E}_{\mathrm{ind}}(\mathbf{r},t),
+\end{equation}
+where the terms correspond to corotation, large-scale convection, and inductive (time-varying $\mathbf{B}$) contributions.
+The interface allows you to enable/disable each contribution depending on the model combination you need.
+
+\section{Corotation electric field}
+Corotation is the electric field in the inertial frame associated with plasma corotating with Earth:
+\begin{equation}
+  \mathbf{E}_{\mathrm{cor}} = - (\boldsymbol{\omega} \times \mathbf{r}) \times \mathbf{B},
+\end{equation}
+with Earth's rotation rate $\omega=\SI{7.2921159e-5}{rad\,s^{-1}}$.
+This term is most relevant in the inner magnetosphere and is frequently included when tracing particles that drift near Earth.
+
+\section{Volland--Stern convection (Kp-parameterized)}
+A commonly used robust model for global convection is the Volland--Stern potential.
+A simple form for the electric potential in the equatorial plane is
+\begin{equation}
+  \Phi(r,\theta) = A\,r^{\gamma}\,\sin\theta,
+\end{equation}
+where $r$ is radial distance, $\theta$ is the azimuthal angle, $\gamma$ controls shielding, and $A$ controls intensity.
+The convection electric field is then
+\begin{equation}
+  \mathbf{E}_{\mathrm{conv}} = -\nabla\Phi.
+\end{equation}
+In the interface, $A$ is derived from Kp using standard empirical relations; $\gamma$ is user-controlled.
+
+\section{Weimer (solar-wind / IMF driven)}
+Weimer-type models are data-driven empirical reconstructions of the ionospheric electric potential as a function of IMF and solar-wind conditions.
+In practice, AMPS uses the mapped electric field/potential as a time-dependent driver for more event-realistic runs.
+Typical inputs include IMF $B_y$, $B_z$, solar-wind speed, and dipole tilt.
+
+\section{Inductive electric field from $d\mathbf{B}/dt$}
+When the magnetic field varies in time, Maxwell--Faraday requires
+\begin{equation}
+  \nabla\times \mathbf{E}_{\mathrm{ind}} = -\frac{\partial \mathbf{B}}{\partial t}.
+\end{equation}
+A physically consistent minimal model (used when $\partial\mathbf{B}/\partial t$ is spatially uniform in the region of interest) is
+\begin{equation}
+  \mathbf{E}_{\mathrm{ind}}(\mathbf{r}) = -\frac{1}{2}\,\mathbf{r}\times\frac{d\mathbf{B}}{dt}.
+\end{equation}
+This choice satisfies $\nabla\times\mathbf{E} = -d\mathbf{B}/dt$ and is unique up to an added gradient field (gauge).
+
+\paragraph{Inputs in the interface.}
+The UI accepts $dB_x/dt$, $dB_y/dt$, $dB_z/dt$ in GSM with units of \si{nT/min}. Internally you should convert to \si{T/s}.
+
+\section{References (selected)}
+\begin{itemize}
+  \item Volland, H. (1973). ``A semiempirical model of large-scale magnetospheric electric fields.'' \emph{JGR}.
+  \item Stern, D. P. (1975). ``The motion of a proton in the equatorial magnetosphere.'' \emph{JGR}.
+  \item Weimer, D. R. (2005). ``Improved ionospheric electrodynamic models...'' \emph{JGR}.
+\end{itemize}
+
+\end{document}

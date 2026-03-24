@@ -1,0 +1,112 @@
+%=====================================================================
+% FILE: doc/latex/cutoff_rigidity.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    cutoff_rigidity.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: "Paper-style" documentation for geomagnetic cutoff rigidity.
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error cutoff_rigidity.tex
+%
+% OUTPUT (copied to ../):
+%   ../cutoff_rigidity.pdf
+%
+% NOTES:
+%   - This document is written to be readable as a standalone reference.
+%   - Equations are intentionally kept compact and focused on what is needed
+%     to understand (and validate) the code path used by the web interface.
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Geomagnetic Cutoff Rigidity in AMPS: Definitions, Penumbra, and Backtracing}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{What is cutoff rigidity?}
+Charged particles moving in the geomagnetic field are filtered by their \emph{magnetic rigidity}
+\begin{equation}
+  R \equiv \frac{p c}{Z e},
+\end{equation}
+where $p$ is particle momentum, $Z$ is charge state, $e$ is the elementary charge, and $c$ is the speed of light.
+For a given location and arrival direction, there exists a threshold rigidity below which trajectories are typically \emph{forbidden} (do not connect to interplanetary space) and above which they are \emph{allowed}.
+
+\paragraph{Why rigidity instead of energy?}
+Magnetic deflection depends on momentum per unit charge.
+Energy-based thresholds depend on particle species through the $p(E)$ relation and $Z$.
+
+\section{Trajectory-based definition}
+AMPS evaluates cutoffs using \emph{numerical trajectory tracing}:
+\begin{itemize}
+  \item Choose an observation point $\mathbf{r}_0$ and an arrival direction $\hat{\mathbf{v}}_0$ (in GSM unless noted).
+  \item For a trial rigidity $R$, construct the corresponding momentum and velocity for the chosen particle species.
+  \item Integrate the Lorentz equation backward in time (equivalently forward for antiparticles):
+  \begin{equation}
+    \frac{d\mathbf{p}}{dt} = q\,\bigl(\mathbf{E}(\mathbf{r},t) + \mathbf{v}\times\mathbf{B}(\mathbf{r},t)\bigr).
+  \end{equation}
+  \item Apply stop conditions (magnetopause crossing, maximum time, or return to atmosphere/inner boundary).
+\end{itemize}
+A trajectory is labeled \emph{allowed} if it reaches the upstream boundary (solar wind / magnetopause) without intersecting the inner loss boundary.
+
+\section{Penumbra and effective cutoff}
+Realistic geomagnetic fields produce a \emph{penumbra}: alternating allowed/forbidden bands in rigidity.
+Following classic practice (e.g., Cooke et\,al., 1991; Smart \& Shea, 2009), define:
+\begin{itemize}
+  \item $R_L$: the \emph{lower} cutoff (below which all trajectories are forbidden),
+  \item $R_U$: the \emph{upper} cutoff (above which all trajectories are allowed).
+\end{itemize}
+Between $R_L$ and $R_U$ the transmissivity is fractional.
+The \emph{effective cutoff} is computed by summing allowed bands in the penumbra:
+\begin{equation}
+  R_C \;=\; R_L + \sum_{k=1}^{N_{\rm allowed}} \Delta R_k,
+\end{equation}
+where $\Delta R_k$ are the rigidity widths of allowed intervals inside $(R_L, R_U)$.
+In discrete scanning, this becomes a weighted count of allowed samples.
+
+\section{Vertical vs. directional cutoffs}
+A \emph{vertical cutoff} uses $\hat{\mathbf{v}}_0$ aligned with the local zenith.
+For anisotropic SEP events and LEO particle telescopes, AMPS supports \emph{directional cutoffs} using the instrument look direction.
+This matters because $R_C$ can vary strongly with pitch/azimuth in the penumbra.
+
+\section{Implementation notes (AMPS interface conventions)}
+\begin{itemize}
+  \item Coordinates: the interface uses GSM for fields and particle state unless explicitly specified.
+  \item Boundary surfaces: the magnetopause (e.g., Shue) is used as an ``escape'' boundary; crossing it ends the tracing.
+  \item Time dependence: temporal modes (static, driven) are handled by updating $\mathbf{E}(t)$ and $\mathbf{B}(t)$ during integration.
+  \item Output: AMPS reports $R_L$, $R_U$, and $R_C$ when penumbra scanning is enabled.
+\end{itemize}
+
+\section{References (selected)}
+\begin{itemize}
+  \item Cooke, D. J., et al. (1991). ``On cosmic-ray cut-off terminology.'' \emph{Nuovo Cimento C}.
+  \item Smart, D. F., \& Shea, M. A. (2009). ``Fifty years of progress in geomagnetic cutoff rigidity determinations.'' \emph{Adv. Space Res.}
+  \item Kress, B. T., et al. (2015). ``Modeling geomagnetic cutoffs for space weather applications.'' \emph{J. Geophys. Res. Space Physics}.
+\end{itemize}
+
+\end{document}

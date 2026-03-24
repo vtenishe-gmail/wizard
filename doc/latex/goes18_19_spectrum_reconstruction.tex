@@ -1,0 +1,120 @@
+%=====================================================================
+% FILE: doc/latex/goes18_19_spectrum_reconstruction.tex
+% INTENT:
+%   LaTeX source for a documentation PDF linked from the in-app Docs
+%   menu. The PDF is intended to be read alongside the wizard and
+%   provide paper-style detail: definitions, equations, references,
+%   and worked examples.
+%
+% METHODS / DESIGN:
+%   - Keep structure consistent across docs: Abstract → Background →
+%     Methods → Implementation Notes → Example(s) → References.
+%   - Use clear variable definitions and units.
+%   - Prefer short, self-contained equations over long derivations.
+%
+% IMPLEMENTATION NOTES:
+%   - Generated PDFs live in doc/*.pdf; sources are in doc/latex/*.tex.
+%   - Keep equations compatible with pdflatex.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+% ==============================================================================
+% FILE:    goes18_19_spectrum_reconstruction.tex
+% PROJECT: AMPS CCMC SEP/GCR Transport Interface
+% PURPOSE: Method notes for reconstructing differential proton spectra from
+%          GOES-18/19 measurements.
+%
+% BUILD:
+%   pdflatex -interaction=nonstopmode -halt-on-error goes18_19_spectrum_reconstruction.tex
+% OUTPUT:
+%   ../goes18_19_spectrum_reconstruction.pdf
+%
+% IMPORTANT:
+%   This document describes an analysis workflow at a level intended for
+%   reproducibility: what is fitted, what assumptions are made, and what data
+%   products are typically required.
+% ============================================================================== 
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\setlist{nosep}
+
+\title{Reconstructing Proton Differential Spectra from GOES-18/19 for AMPS Boundary Conditions}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Goal and context}
+The AMPS geospace transport workflow often needs an upstream (magnetopause) proton spectrum $J(E,t)$.
+GOES satellites provide operational particle products (integral and/or differential channels) that can be inverted into a smooth differential spectrum.
+This document outlines a practical reconstruction approach suitable for automated pipelines.
+
+\section{Data sources}
+\begin{itemize}
+  \item GOES-R series (GOES-16/17/18/19) carries SEISS particle sensors.
+  \item For solar proton events, relevant products typically include integral flux thresholds and/or binned proton channels.
+\end{itemize}
+In practice, choose a cadence (e.g., 1-min, 5-min) and a time interval.
+
+\section{Forward model: from spectrum to channel measurements}
+Assume a parametric spectral form $J(E;\boldsymbol{\theta})$ (selected in the interface):
+\begin{itemize}
+  \item Power law: $J=J_0 (E/E_0)^{-\gamma}$
+  \item Power law with exponential cutoff: $J=J_0 (E/E_0)^{-\gamma}\exp(-E/E_c)$
+  \item Band function (smooth broken power law)
+  \item Table (piecewise log-log interpolation)
+\end{itemize}
+
+For an \emph{integral} channel reporting $F_i(>E_i)$, the model prediction is:
+\begin{equation}
+  \widehat{F}_i(\boldsymbol{\theta}) = \int_{E_i}^{\infty} J(E;\boldsymbol{\theta})\,dE.
+\end{equation}
+
+For a \emph{finite energy bin} $[E_{i,\min},E_{i,\max}]$ (differential channel), the model prediction is:
+\begin{equation}
+  \widehat{C}_i(\boldsymbol{\theta}) = \frac{1}{\Delta E_i}\int_{E_{i,\min}}^{E_{i,\max}} J(E;\boldsymbol{\theta})\,dE,
+\end{equation}
+with $\Delta E_i = E_{i,\max}-E_{i,\min}$.
+
+\paragraph{Response functions (recommended when available).}
+If detector response matrices $R_i(E)$ are available, use
+\begin{equation}
+  \widehat{C}_i(\boldsymbol{\theta}) = \int R_i(E)\,J(E;\boldsymbol{\theta})\,dE,
+\end{equation}
+which reduces bias from finite energy resolution and out-of-acceptance contamination.
+
+\section{Parameter estimation}
+At each time $t$ (or over a window), solve a constrained nonlinear least squares problem:
+\begin{equation}
+  \boldsymbol{\theta}^*(t) = \arg\min_{\boldsymbol{\theta}} \sum_i w_i\,\bigl( C_i(t) - \widehat{C}_i(\boldsymbol{\theta}) \bigr)^2,
+\end{equation}
+where $C_i(t)$ are measured channel values and $w_i$ are weights (often $1/\sigma_i^2$).
+
+\paragraph{Regularization in time.}
+For stable real-time products, add a smoothness penalty:
+\begin{equation}
+  \lambda\,\|\boldsymbol{\theta}(t)-\boldsymbol{\theta}(t-\Delta t)\|^2.
+\end{equation}
+
+\section{Practical considerations}
+\begin{itemize}
+  \item \textbf{Anisotropy:} GOES views a specific look direction; early SEP onsets can be strongly anisotropic.
+        Decide whether to treat GOES as a proxy for an isotropic upstream boundary or to incorporate pitch-angle information.
+  \item \textbf{Background subtraction:} subtract pre-event background or include a background term in $J(E)$.
+  \item \textbf{Saturation / contamination:} high-energy channels can be contaminated by penetrating particles; quality flags matter.
+  \item \textbf{Units:} keep consistent with AMPS input (typically p\,cm$^{-2}$\,s$^{-1}$\,sr$^{-1}$\,(MeV/n)$^{-1}$).
+\end{itemize}
+
+\section{Suggested references}
+\begin{itemize}
+  \item Kress, B. T., et al. (2021). ``Observations From NOAA's Newest Solar Proton Sensor.'' \emph{Space Weather}.
+  \item Hu, S., et al. (2022). ``Calibration of the GOES high-energy proton detectors'' (SWSC).
+  \item NOAA/NCEI: GOES-R SEISS product and documentation pages.
+\end{itemize}
+
+\end{document}

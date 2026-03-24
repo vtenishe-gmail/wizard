@@ -1,0 +1,231 @@
+/*
+=====================================================================
+FILE: css/04-diagrams.css
+INTENT:
+  Styling for the AMPS wizard static site. This stylesheet is part of a
+  layered CSS system: tokens → layout → components → diagrams.
+
+METHODS / DESIGN:
+  - Tokens (css/01-tokens.css): colors, spacing, font sizes.
+  - Layout (css/02-layout.css): page/grid/topbar/menus.
+  - Components (css/03-components.css): buttons, inputs, cards.
+  - Diagrams (css/04-diagrams.css): SVG/canvas-specific styling.
+
+IMPLEMENTATION NOTES:
+  - Keep selectors scoped and predictable (prefer class selectors).
+  - Match Help and Docs dropdown look & feel for UI consistency.
+  - When adding a new menu/panel, copy Help menu patterns to keep
+    interaction and typography consistent.
+
+LAST UPDATED: 2026-02-21
+=====================================================================
+*/
+/* =============================================================================
+   FILE:    css/04-diagrams.css
+   PROJECT: AMPS CCMC Submission Interface  v3
+   PURPOSE: Styles specific to the inline SVG/Canvas scientific diagrams —
+            domain-boundary cross-sections, electric-field schematic, and
+            particle-spectrum canvas.
+
+   DIAGRAM INVENTORY
+
+   1. DOMAIN BOUNDARY DIAGRAMS  (Step 4 — js/04-boundary.js)
+      .bnd-diagram      — outer frame card (title bar + SVG wrapper)
+      .bnd-diag-title   — title bar showing coordinate system name
+      .bnd-svg-wrap     — padding wrapper for the SVG element
+      #bnd-svg / #shue-svg — the SVG canvases themselves (400×320 viewBox)
+      SVG element styles applied via class attribute:
+        .svg-axis       — axis lines (X and Z)
+        .svg-grid       — faint background grid lines
+        .svg-label      — axis tick / coordinate labels
+        .svg-box        — rectangular BOX boundary outline
+        .svg-shue       — Shue magnetopause filled path
+        .svg-subsolar   — yellow dot at r₀ subsolar standoff
+        .svg-earth      — blue filled circle at GSM origin
+        .svg-dim-line   — annotation dimension lines with arrowheads
+        .svg-dim-label  — text labels on dimension lines
+        .svg-shue-label — parameter readout labels on the Shue diagram
+        .svg-warn       — orange warning text inside SVG
+      .bv-ok / .bv-warn / .bv-err — validation status items below diagram
+      Shue auto-compute grid  (.shue-auto / .shue-params / .shue-param)
+
+   2. ELECTRIC FIELD SCHEMATIC  (Step 5 — js/05-efield.js)
+      .efield-diagram   — outer frame card
+      .efield-svg-wrap  — padding wrapper
+      #efield-svg       — SVG canvas (200×200 viewBox)
+                         Drawn entirely by JS: drawEfieldSchematic()
+                         · Corotation: concentric dashed green circles
+                         · Volland-Stern: offset blue/orange ellipses
+                         · Weimer: asymmetric arc pattern (IMF-dependent)
+      .ri-row / .ri-item — readout info items below the schematic
+
+   3. PARTICLE SPECTRUM CANVAS  (Step 7 — js/07-spectrum.js)
+      .spec-canvas-wrap — container; canvas is sized to parent width
+      #spec-canvas      — HTML5 canvas element; drawn by drawSpec() in JS
+
+   COORDINATE CONVENTION (for boundary SVG):
+      SVG origin → Earth centre  (cx=200, cy=160)
+      +X (sunward)  → right  (+x in SVG = +X_GSM)
+      +Z (northward) → up    (-y in SVG = +Z_GSM)
+      Scale: 5 px per Earth radius (RE)
+      Tick spacing: every 5 RE = 25 px
+
+   DEPENDS ON: 01-tokens.css
+=============================================================================*/
+/* ═══════════════════════════════════════════════════════════════════
+   AMPS CCMC — FORMAT DIAGRAMS & SVG BOUNDARY DIAGRAMS
+   Color-coded column annotation components for file format
+   documentation, plus SVG wrapper styles for boundary geometry.
+═══════════════════════════════════════════════════════════════════ */
+
+/* FORMAT DIAGRAM COMPONENT */
+.fmt-diagram{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;}
+.fmt-title{background:rgba(26,136,212,.12);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--accent-bright);letter-spacing:.3px;}
+.fmt-title-left{display:flex;align-items:center;gap:8px;}
+.fmt-title-icon{font-size:14px;}
+.fmt-sub{font-size:10px;font-weight:400;color:var(--text-dim);}
+.fmt-sample{padding:12px 14px;font-family:var(--font-mono);font-size:13px;color:#fff;letter-spacing:.04em;overflow-x:auto;white-space:nowrap;border-bottom:1px solid var(--border);line-height:1.8;}
+.fmt-ruler{padding:4px 14px 8px;font-family:var(--font-mono);font-size:9px;color:var(--text-muted);overflow-x:auto;white-space:nowrap;border-bottom:1px solid var(--border);}
+
+/* Column colour tokens — applied as span classes */
+.f-year{color:#38c0ff;}
+.f-mon {color:#5aeacf;}
+.f-day {color:#5aeacf;}
+.f-hr  {color:#a8d8ff;}
+.f-min {color:#a8d8ff;}
+.f-sec {color:#c5e8ff;}
+.f-lat {color:#ff9a3c;}
+.f-lon {color:#ffb866;}
+.f-alt {color:#ffd04b;}
+.f-dst {color:#ff5a5a;}
+.f-pdyn{color:#ff9a3c;}
+.f-bz  {color:#ff6b6b;}
+.f-vx  {color:#c5a0ff;}
+.f-nsw {color:#8bb4ff;}
+.f-by  {color:#78d4ff;}
+.f-bx  {color:#78d4ff;}
+.f-comment{color:#3a5878;font-style:italic;}
+
+/* Legend grid below the sample line */
+.fmt-legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:0;border-top:1px solid var(--border);}
+.fmt-leg-item{display:flex;align-items:flex-start;gap:7px;padding:7px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.fmt-leg-item:last-child{border-right:none;}
+.fmt-leg-swatch{width:9px;height:9px;border-radius:2px;flex-shrink:0;margin-top:3px;}
+.fmt-leg-name{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text);white-space:nowrap;}
+.fmt-leg-desc{font-size:10px;color:var(--text-dim);line-height:1.4;}
+
+/* TRAJECTORY PREVIEW TABLE */
+.traj-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;margin-bottom:12px;}
+.traj-table th{background:rgba(26,136,212,.12);color:var(--accent-bright);font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.traj-table td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.025);}
+.traj-table tr:hover td{background:rgba(255,255,255,.02);}
+.traj-table .c-year{color:#38c0ff;}
+.traj-table .c-date{color:#5aeacf;}
+.traj-table .c-time{color:#a8d8ff;}
+.traj-table .c-lat {color:#ff9a3c;}
+.traj-table .c-lon {color:#ffb866;}
+.traj-table .c-alt {color:#ffd04b;}
+.traj-table .c-err {color:var(--red);}
+.traj-table .c-ok  {color:var(--green);}
+
+/* TS05 DRIVING TABLE */
+.ts05-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;margin-bottom:10px;}
+.ts05-table th{background:rgba(255,90,90,.07);color:var(--text-dim);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:5px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.ts05-table td{padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.025);}
+.ts05-table .c-dst {color:#ff5a5a;}
+.ts05-table .c-pdyn{color:#ff9a3c;}
+.ts05-table .c-bz  {color:#ff6b6b;}
+.ts05-table .c-vx  {color:#c5a0ff;}
+.ts05-table .c-nsw {color:#8bb4ff;}
+.ts05-table .c-by  {color:#78d4ff;}
+
+/* TEMPORAL TIMELINE */
+.fu-timeline-wrap{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.fu-tl{position:relative;height:50px;margin:8px 0 24px;}
+.fu-axis{position:absolute;top:24px;left:0;right:0;height:2px;background:var(--border);}
+.fu-tick{position:absolute;width:2px;background:var(--accent);height:12px;top:18px;}
+.fu-tick.inject{background:var(--green);height:16px;top:16px;}
+.fu-label{position:absolute;top:32px;font-family:var(--font-mono);font-size:9px;color:var(--text-dim);transform:translateX(-50%);white-space:nowrap;}
+.fu-particle{position:absolute;top:6px;font-size:13px;}
+.fu-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:10px;}
+.fu-leg{display:flex;align-items:center;gap:5px;color:var(--text-dim);}
+.fu-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* OMNI-WEB WIDGET */
+.omni-widget{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-top:12px;}
+.omni-title{font-size:11px;font-weight:700;color:var(--accent-bright);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px;}
+.omni-steps{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.omni-step{display:flex;align-items:center;gap:9px;font-size:11px;}
+.os-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.os-num.pending{background:var(--border);color:var(--text-dim);}
+.os-num.done{background:var(--green);color:#000;}
+.os-num.running{background:var(--orange);color:#000;animation:pulse-anim 1s infinite;}
+.omni-status{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);margin-bottom:10px;line-height:1.7;}
+.omni-status .ok  {color:var(--green);}
+.omni-status .warn{color:var(--orange);}
+.omni-status .gap {color:var(--red);}
+
+/* BOUNDARY SVG DIAGRAM */
+.bnd-diagram{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.bnd-diag-title{background:rgba(26,136,212,.1);border-bottom:1px solid var(--border);padding:8px 12px;font-size:11px;font-weight:700;color:var(--accent-bright);letter-spacing:.3px;display:flex;align-items:center;justify-content:space-between;}
+.bnd-diag-sub{font-size:10px;color:var(--text-dim);font-weight:400;}
+.bnd-svg-wrap{padding:8px;}
+.bnd-svg-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:16px;font-size:10px;flex-wrap:wrap;}
+.bnd-compare{color:var(--text-dim);}
+.bnd-compare span{font-family:var(--font-mono);}
+
+/* BOUNDARY SELECTOR CARDS */
+.bnd-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+@media(max-width:600px){.bnd-cards{grid-template-columns:1fr;}}
+.bnd-card{background:var(--bg-inset);border:2px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;position:relative;transition:all .2s;}
+.bnd-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.bnd-card.sel{border-color:var(--accent);background:rgba(26,136,212,.07);}
+.bnd-card.sel::after{content:"✓";position:absolute;top:10px;right:12px;color:var(--green);font-weight:700;font-size:14px;}
+.bc-icon{font-size:28px;margin-bottom:6px;}
+.bc-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.bc-desc{font-size:11px;color:var(--text-dim);line-height:1.5;}
+.bc-formula{margin-top:8px;padding:6px 10px;background:rgba(0,0,0,.3);border-radius:4px;font-family:var(--font-mono);font-size:11px;color:var(--accent-bright);line-height:1.6;}
+
+/* SHUE AUTO-COMPUTE DISPLAY */
+.shue-auto{background:rgba(45,212,160,.05);border:1px solid rgba(45,212,160,.2);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;}
+.shue-auto-title{font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+.shue-params{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media(max-width:500px){.shue-params{grid-template-columns:1fr 1fr;}}
+.shue-param{display:flex;flex-direction:column;gap:2px;}
+.shue-param-label{font-size:9px;color:var(--text-dim);}
+.shue-param-val{font-size:15px;font-weight:700;font-family:var(--font-mono);color:var(--green);}
+.shue-param-eq{font-size:9px;color:var(--text-muted);margin-top:1px;}
+
+/* SPECTRUM WIDGET */
+.spectrum-display{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;}
+.spec-title{font-size:11px;font-weight:700;color:var(--accent-bright);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;}
+.spec-chart-wrap{height:160px;position:relative;background:rgba(0,0,0,.2);border-radius:var(--radius);border:1px solid var(--border-dim);overflow:hidden;}
+canvas.spec-canvas{width:100%;height:100%;display:block;}
+
+/* ENERGY BIN ROWS */
+.ebin-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-dim);font-size:11px;}
+.ebin-row:last-child{border:none;}
+.ebin-range{font-family:var(--font-mono);color:var(--text);}
+.ebin-bar-wrap{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.ebin-bar{height:100%;background:var(--accent);border-radius:3px;}
+.ebin-del{cursor:pointer;color:var(--text-muted);padding:2px 6px;border-radius:3px;transition:color .15s;}
+.ebin-del:hover{color:var(--red);}
+
+/* REVIEW SECTION */
+.review-param-file{background:var(--bg-inset);border:1px solid var(--green);border-radius:var(--radius-lg);padding:16px;font-family:var(--font-mono);font-size:11.5px;color:var(--text);line-height:1.85;overflow-x:auto;white-space:pre;}
+.review-param-file .r-section{color:var(--accent-bright);font-weight:600;}
+.review-param-file .r-key{color:var(--text-bright);}
+.review-param-file .r-val{color:var(--green);}
+.review-param-file .r-auto{color:var(--orange);}
+.review-param-file .r-comment{color:#2e4a6a;}
+.review-block{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(max-width:700px){.review-block{grid-template-columns:1fr 1fr;}}
+.review-item{background:var(--bg-inset);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;}
+.ri-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.ri-val{font-size:13px;font-weight:700;font-family:var(--font-mono);color:#fff;}
+.ri-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
+.ri-ok{border-color:rgba(45,212,160,.3);background:rgba(45,212,160,.04);}
+.ri-ok .ri-val{color:var(--green);}
+.ri-warn{border-color:rgba(255,154,60,.3);}
+.ri-warn .ri-val{color:var(--orange);}
+

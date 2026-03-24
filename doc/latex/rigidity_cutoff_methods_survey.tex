@@ -1,0 +1,272 @@
+% ============================================================================
+% Rigidity Cutoff and Flux Modeling in Geospace: Codes, Methods, Implementation,
+% and Recommendations
+%
+% Intent:
+%   Provide a self-contained, citable, “paper-style” overview of commonly used
+%   geomagnetic rigidity cutoff / access calculation tools and the algorithms
+%   behind them, aimed at users configuring runs via the AMPS Geospace Radiation
+%   Wizard website.
+%
+% Methods / Sources:
+%   This document summarizes well-documented public tools and publications,
+%   including COR, MAGNETOCOSMICS/PLANETOCOSMICS (SPENVIS/ESSR), OTSO, classic
+%   Smart & Shea / Cooke et al. cutoff terminology, and operational aviation
+%   table approaches (CARI-7/7A). It emphasizes practical implementation details:
+%   trajectory backtracing, numerical integrators, termination criteria,
+%   penumbra handling, and transmission functions.
+%
+% Implementation notes:
+%   - Designed to compile with pdflatex.
+%   - Uses only standard LaTeX packages.
+%   - References are provided as URL-bearing bibliography items.
+% ============================================================================
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue,
+  citecolor=blue
+}
+
+\title{Rigidity Cutoff and Flux Modeling in Geospace: \\ Codes, Methods, Implementation, and Recommendations}
+\author{AMPS Geospace Radiation Wizard Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Geomagnetic cutoff and access computations in geospace are most commonly performed by charged-particle trajectory tracing through a combined internal geomagnetic field (often IGRF) and an external magnetospheric field model (often Tsyganenko-family). A rigidity--direction pair is classified as \emph{allowed} or \emph{forbidden} using inner/outer boundary conditions; penumbral structure motivates reporting multiple cutoff definitions (upper/lower/effective) and, for flux modeling, a transmission function folded with an incident spectrum. This report surveys widely used codes and services (MAGNETOCOSMICS, PLANETOCOSMICS, COR, OTSO and related toolchains), describes common numerical methods and ``tricks'' (backtracing, adaptive step control, runtime caps, caching, multi-direction sampling), and provides practical recommendations for integrating cutoff and flux workflows into the AMPS Geospace Radiation Wizard.
+\end{abstract}
+
+\tableofcontents
+
+\section{Executive summary}
+Rigidity cutoff practice in operational and research settings is dominated by \textbf{trajectory tracing} (usually \textbf{backtracing}) through an internal field model (IGRF) plus an external model (Tsyganenko family), together with termination tests used to classify trajectories and infer cutoffs. This approach remains a reference standard because it naturally handles realistic field complexity and penumbra structure, at the cost of substantial computation.
+
+In practice, most pipelines adopt one of two patterns:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Direct ``gridless'' field evaluation:} evaluate IGRF + Tsyganenko analytically at each integrator step; typically used for cutoff mapping and transmissivity studies.
+  \item \textbf{3-D field maps / grids:} interpolate B and optionally E from gridded products (e.g., MHD outputs or assimilative field reconstructions) for time-dependent, data-driven workflows.
+\end{enumerate}
+
+For flux modeling (SEP/GCR), a single cutoff number is often insufficient; modern systems increasingly compute a \textbf{transmission function} and fold it with an incident spectrum.
+
+\section{Core definitions and equations}
+
+\subsection{Rigidity and equation of motion}
+Rigidity is defined as
+\begin{equation}
+  R \equiv \frac{pc}{Ze},
+\end{equation}
+where $p$ is particle momentum, $Z$ is charge state, and $e$ is the elementary charge. For a purely magnetic field, particle motion obeys the Lorentz force equation
+\begin{equation}
+  \frac{d\mathbf{p}}{dt} = Ze\, \mathbf{v} \times \mathbf{B}(\mathbf{x},t),
+\end{equation}
+with $\mathbf{v}=\mathbf{p}/\gamma m$.
+
+\subsection{Backtracing equivalence}
+Instead of launching particles from ``infinity'' toward a small target region, most cutoff computations use \textbf{backtracing}: launch a particle of opposite charge sign outward from the location of interest. In a static magnetic field, reversing charge sign and velocity yields an equivalent geometric trajectory, turning the access problem into an efficient escape classification.
+
+\subsection{Allowed/forbidden classification and termination criteria}
+A rigidity (and direction) is classified using a combination of inner and outer termination tests:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Inner boundary:} typically the ``top of atmosphere'', often taken as $\sim$20 km altitude in legacy and operational tables.
+  \item \textbf{Outer boundary:} either a magnetopause model crossing test (dayside), or a large radial distance cutoff such as $\sim$25 $R_E$ (often used on the nightside / tail or as a simple proxy when a magnetopause is not modeled).
+\end{itemize}
+A trajectory that exits the magnetosphere / reaches the outer boundary is labeled \emph{allowed}; one that intersects the inner boundary is labeled \emph{forbidden}.
+
+\section{Penumbra and cutoff definitions}
+Penumbral regions contain interleaved allowed and forbidden rigidity intervals, so multiple cutoff definitions are used \cite{Cooke1985}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Upper cutoff} $R_U$: highest transition in the scan.
+  \item \textbf{Lower cutoff} $R_L$: lowest transition in the scan.
+  \item \textbf{Effective cutoff} $R_\mathrm{eff}$: a scalar intended to represent overall accessibility through the penumbra.
+\end{itemize}
+A common discrete-scan effective cutoff definition used in the open literature is
+\begin{equation}
+  R_{\mathrm{eff}} = R_{\max} - \sum \Delta R_{\mathrm{allowed}},
+\end{equation}
+where the sum is over allowed rigidity-bin widths within a chosen scanning window $[R_{\min},R_{\max}]$.
+
+Because $R_{\mathrm{eff}}$ is definition-dependent, it is best practice to store $(R_U,R_L,R_{\mathrm{eff}})$ and the underlying allowed/forbidden pattern (or allowed fraction) versus rigidity.
+
+\section{Transmission functions and flux modeling}
+A \textbf{transmission function} $T(R,\Omega,t)$ encodes access probability (0--1) as a function of rigidity $R$, direction $\Omega$, and time $t$. For an incident differential spectrum $J_{\mathrm{IP}}(R,\Omega,t)$, a location-specific transmitted spectrum can be approximated as
+\begin{equation}
+  J_{\mathrm{loc}}(R,t) = \int J_{\mathrm{IP}}(R,\Omega,t)\, T(R,\Omega,t)\, d\Omega.
+\end{equation}
+COR documents this workflow explicitly via throughput (transmission) outputs that are then used to compute vertical and multidirectional fluxes \cite{CORsite,CORmanual}.
+
+\section{Landscape of commonly used tools}
+\subsection{High-level catalog}
+Table~\ref{tab:catalog} summarizes a representative set of widely used and/or well-documented tools.
+
+\begin{longtable}{@{}p{3.2cm}p{2.3cm}p{2.3cm}p{6.2cm}@{}}
+\caption{Representative rigidity cutoff / access tools and their typical roles.\label{tab:catalog}}\\
+\toprule
+\textbf{Tool} & \textbf{Runtime} & \textbf{Typical fields} & \textbf{Notes / outputs}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Tool} & \textbf{Runtime} & \textbf{Typical fields} & \textbf{Notes / outputs}\\
+\midrule
+\endhead
+MAGNETOCOSMICS & Geant4 / C++ & IGRF + Tsyganenko family & Cutoff rigidity vs position; asymptotic directions; integrated with SPENVIS; designed for trajectory and field-line visualization.\cite{ESSRCOSMICS,SPENVISMagnetocosmics}\\
+PLANETOCOSMICS & Geant4 / C++ & Magnetic field + atmosphere/soil & Extends to interaction/secondaries; used for planetary environments; also used to produce shielding/cutoff maps in some pipelines.\cite{ESSRCOSMICS,SPENVISPlanetocosmics}\\
+COR (platform) & Web + batch & IGRF + T96/TS05 variants & Multi-direction (hundreds of directions), transmission functions, flux reconstruction from transmission.\cite{CORsite,CORmanual}\\
+COR trajectory engine (example code) & C (GPL) & IGRF + Tsyganenko (example: T04) & Reference implementation for campaign-style runs; exposes step caps and text I/O.\cite{CORcode}\\
+OTSO & Fortran/Python & IGRF + Tsyganenko + magnetopause models & Open tool emphasizing reproducible tracing, adaptive stepping, and explicit magnetopause handling; provides cutoffs and asymptotic directions.\cite{OTSOpaper,OTSOGithub}\\
+Smart \& Shea programs / tables & FORTRAN / tables & Internal field (IGRF) + boundary conventions & Foundational methodology and terminology; long-lived tables and operational approximations used in dose models.\cite{SmartShea2001,Cooke1985}\\
+CARI-7/7A cutoffs (aviation) & Tables + corrections & IGRF + storm corrections & Operational dose pipelines often rely on precomputed cutoff grids at flight altitudes with heuristic storm adjustments.\cite{CARI7}\\
+\bottomrule
+\end{longtable}
+
+\section{Numerical methods and ``tricks'' used in practice}
+\subsection{Integrator choices}
+Most codes rely on Runge--Kutta family methods or related adaptive schemes; some legacy work uses Bulirsch--Stoer for efficiency in smooth fields. In Geant4-based codes, field propagation is handled by the Geant4 field integration stack and supports multiple steppers with error control \cite{Geant4Field}.
+
+\subsection{Adaptive step control}
+Adaptive time stepping is one of the highest-impact optimizations. A common principle is to limit the step to a fraction of the gyroperiod and/or use local curvature/field magnitude to regulate the step. OTSO documents a concrete strategy using speed invariance as an error monitor and step growth caps \cite{OTSOpaper}.
+
+\subsection{Rigidity scan strategies}
+Runtime scales with the number of rigidity bins. Common strategies include:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Coarse-to-fine bracketing:} estimate a cutoff using analytic approximations (dipole/St\o rmer), then scan a narrower window at finer $\Delta R$.
+  \item \textbf{Fixed fine steps:} e.g., $\Delta R=0.01$ GV for operational multi-direction runs; even $\Delta R=0.001$ GV for penumbra research.
+  \item \textbf{Early termination and caps:} impose maximum integration steps to prevent quasi-trapped or long-lived trajectories from dominating runtime (explicitly exposed by some engines).\cite{CORcode}
+\end{itemize}
+COR notes that a single-point, multi-direction run at $0.01$ GV step size can take hours \cite{CORmanual}, motivating parallelism and caching.
+
+\subsection{Multi-direction sampling}
+Vertical cutoffs are common but insufficient for isotropic incidence or anisotropic SEP access. Systems therefore compute cutoffs across many incoming directions and build a direction-dependent transmission map. COR explicitly uses hundreds of directions (documented as 577) for such purposes \cite{CORmanual}.
+
+\subsection{Caching and reuse}
+Caching is especially valuable for web-style workflows where users vary spectra while keeping geomagnetic conditions fixed. Toolchains built around asymptotic directions or transmission functions commonly cache those expensive computations for reuse in repeated spectral folding.
+
+\section{Validation and benchmarking recommendations}
+A practical, defensible validation approach should include:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Analytic sanity checks:} dipole/St\o rmer-like baselines for sign conventions and geometry.
+  \item \textbf{Cross-tool comparisons:} compare vertical cutoffs and/or transmission functions against at least one external reference tool (e.g., COR platform outputs, GeoMagSphere vertical cutoffs, or published grids).
+  \item \textbf{Boundary sensitivity:} quantify sensitivity to outer boundary choice (magnetopause model vs fixed-radius termination) and document it.
+  \item \textbf{Conservation properties:} in purely magnetic runs, verify speed invariance (or energy invariance), echoing OTSO-style monitors.\cite{OTSOpaper}
+\end{enumerate}
+
+\section{Implications for the AMPS Geospace Radiation Wizard}
+\subsection{Mapping to the site’s two-mode design}
+\paragraph{Gridless (Tsyganenko + IGRF; no E)}
+This is the best default for cutoff mapping because the field is smooth and the model coordinate conventions are preserved. It matches the standard practice embodied in many tools and services \cite{CORmanual,ESSRCOSMICS}.
+
+\paragraph{3-D grid (interpolated fields)}
+Necessary for MHD-driven or data-driven fields and time-dependent E-fields, but requires careful interpolation choices and integrator settings. Rough/non-smooth field maps may require reduced-order steppers or tighter error controls, consistent with Geant4 guidance for field maps \cite{Geant4Field}.
+
+\subsection{Recommended user-facing controls}
+For robust workflows, expose:
+\begin{itemize}[leftmargin=*]
+  \item maximum trajectories per point (or equivalent cap on directions$\times$rigidity bins),
+  \item maximum integration steps per trajectory,
+  \item a two-stage rigidity scan (coarse bracket + fine penumbra scan),
+  \item output of $(R_U,R_L,R_\mathrm{eff})$ plus a transmission curve.
+\end{itemize}
+
+\section{Example file formats}
+This section summarizes convenient formats for site-driven runs.
+
+\subsection{Points file (CSV)}
+\begin{verbatim}
+# coordinate_system: GEO
+# units: deg, deg, km
+id,time_utc,lat_deg,lon_deg,alt_km
+pt001,2012-05-17T01:45:00Z,65.00,25.00,0
+pt002,2012-05-17T01:45:00Z,51.50,0.00,10.6
+\end{verbatim}
+
+\subsection{Trajectory file (CSV)}
+\begin{verbatim}
+# coordinate_system: GSM
+# units: Re
+time_utc,x_re,y_re,z_re
+2012-05-17T01:45:00Z, 1.05, -0.10, 0.20
+2012-05-17T01:45:10Z, 1.08, -0.11, 0.21
+\end{verbatim}
+
+\subsection{Transmission output (CSV)}
+\begin{verbatim}
+# rigidity_units: GV
+meta,RU_GV,RL_GV,Reff_GV,method
+meta,2.964,2.513,2.615,"Reff = Rmax - sum(deltaR_allowed)"
+R_GV,allowed_fraction
+2.500,0.00
+2.510,0.00
+2.520,0.25
+...
+\end{verbatim}
+
+\section{Conclusions}
+A robust cutoff+flux workflow should treat cutoff as a transmission function problem rather than a single-number threshold, especially in penumbral regions and for anisotropic SEP access. Gridless backtracing with IGRF+Tsyganenko remains the most defensible baseline. When adopting grid-interpolated fields, numerical integration and interpolation artifacts become first-order concerns, and explicit validation against gridless references is recommended.
+
+\begin{thebibliography}{99}
+
+\bibitem{Cooke1985}
+D.~J. Cooke, J.~E. Humble, M.~A. Shea, D.~F. Smart, N.~Lund, I.~L. Rasmussen, B.~Byrne, K.~G. McCracken, and E.~E. Rao, ``On cosmic-ray cut-off terminology,'' NASA Technical Report (1985).
+\newline\url{https://ntrs.nasa.gov/api/citations/19850026771/downloads/19850026771.pdf}
+
+\bibitem{SmartShea2001}
+D.~F. Smart and M.~A. Shea, ``Geomagnetic Cutoff Rigidity Computer Program for the IGRF,'' NASA Technical Report (2001).
+\newline\url{https://ntrs.nasa.gov/api/citations/20010071975/downloads/20010071975.pdf}
+
+\bibitem{CORsite}
+COR (Cut-Off Rigidity) platform.
+\newline\url{https://cor.crmodels.org/}
+
+\bibitem{CORmanual}
+COR User Manual v1.0.0.
+\newline\url{https://cor.crmodels.org/data/user_manual/1_0_0.pdf}
+
+\bibitem{CORcode}
+COR trajectory engine reference implementation (Trajectories\_IGRF\_T04\_C).
+\newline\url{https://github.com/COR-Cut-off-rigidity/Trajectories_IGRF_T04_C}
+
+\bibitem{OTSOpaper}
+N.~Larsen et al., ``A new open-source geomagnetosphere propagation tool (OTSO) and its applications,'' Journal of Geophysical Research: Space Physics (2023).
+\newline\url{https://cc.oulu.fi/~usoskin/personal/Larsen_OTSO.pdf}
+
+\bibitem{OTSOGithub}
+OTSO GitHub repository.
+\newline\url{https://github.com/NLarsen15/OTSO}
+
+\bibitem{ESSRCOSMICS}
+ESA ESSR COSMICS project page (MAGNETOCOSMICS / PLANETOCOSMICS).
+\newline\url{https://essr.esa.int/project/cosmics-charged-particles-in-planetary-environments}
+
+\bibitem{SPENVISMagnetocosmics}
+SPENVIS help: MAGNETOCOSMICS.
+\newline\url{https://www.spenvis.oma.be/help/models/magnetocosmics.html}
+
+\bibitem{SPENVISPlanetocosmics}
+SPENVIS help: PLANETOCOSMICS.
+\newline\url{https://www.spenvis.oma.be/help/models/planetocosmics.html}
+
+\bibitem{CARI7}
+FAA, ``CARI-7A: Galactic Cosmic Ray Dose Modeling,'' FAA Technical Report (2019).
+\newline\url{https://www.faa.gov/sites/faa.gov/files/data_research/research/med_humanfacs/aeromedical/201904.pdf}
+
+\bibitem{Geant4Field}
+Geant4 Application Developer Guide: Electromagnetic Field Propagation.
+\newline\url{https://geant4.web.cern.ch/documentation/pipelines/master/bfad_html/ForApplicationDevelopers/Detector/electroMagneticField.html}
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,145 @@
+%=====================================================================
+% FILE: doc/latex/output_domains_and_trajectories.tex
+% INTENT:
+%   Detailed documentation for Step 7 (Output Domain): how to define
+%   individual points, trajectories, and spherical shells, including
+%   example trajectory-file formats.
+%
+% METHODS / DESIGN:
+%   - Maps directly onto the wizard UI cards: POINTS / TRAJECTORY / SHELLS.
+%   - Specifies coordinate frames, units, and practical validation tips.
+%   - Provides multiple simple text formats for trajectory upload.
+%
+% IMPLEMENTATION NOTES:
+%   - This PDF is linked from Docs and should open directly as a .pdf.
+%   - Compiles with pdflatex.
+%   - Output is copied to ../output_domains_and_trajectories.pdf.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\setlist{nosep}
+
+\title{Output Domains in the AMPS Wizard: Points, Trajectories, and Spherical Shells}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Concept: what is an ``Output Domain''?}
+The Output Domain (Step 7) defines \emph{where} AMPS evaluates geomagnetic cutoffs, particle access, and flux.
+Conceptually, AMPS evaluates a map
+\begin{equation}
+  \bigl(\mathbf{r}, \hat{\mathbf{v}}, t, E\bigr) \;\mapsto\; \text{allowed/forbidden},\; R_c,\; J(E),\; \Phi(E> E_0),\;\ldots
+\end{equation}
+for a set of sampling locations $\mathbf{r}$ (and optionally directions $\hat{\mathbf{v}}$) at one or more times $t$.
+
+\paragraph{Coordinate system}
+Unless stated otherwise, the interface assumes \textbf{GSM} coordinates.
+If you provide data in another frame (GSE, GEO, SM), convert before upload.
+
+\paragraph{Units}
+The wizard UI labels distances in \textbf{$R_E$} (Earth radii) for geospace problems.
+If your data are in kilometers, convert using $1\,R_E \approx \SI{6371}{km}$.
+
+\section{Mode 1: Individual Points (POINTS)}
+Use POINTS when you have a small set of discrete locations (stations, grid points, spacecraft points-of-interest).
+\begin{itemize}
+  \item Provide $N$ points, each as $(x,y,z)$ in GSM.
+  \item Optional metadata (label, altitude) may be included but is ignored by the simplest parser.
+  \item Best for: validation, site-specific cutoffs, ``spot checks''.
+\end{itemize}
+
+\subsection{Example point list (space-delimited)}
+\begin{verbatim}
+# x(Re)   y(Re)   z(Re)    label
+ 6.60     0.00    0.00     GEO
+ 1.05     0.00    0.00     LEO_equator
+ 1.00     0.00    0.50     LEO_midlat
+\end{verbatim}
+
+\section{Mode 2: Trajectories (TRAJECTORY)}
+Use TRAJECTORY when you want sampling along an orbit or path (e.g., Van Allen Probes, ISS, a flight segment).
+A trajectory is a time-ordered list of positions.
+\begin{itemize}
+  \item Each row provides time + position.
+  \item Time is used when Temporal Mode is TIME\_SERIES; otherwise it may be ignored.
+  \item Positions should be monotonic in time (no backward jumps).
+\end{itemize}
+
+\subsection{Trajectory file formats: recommended options}
+To keep the interface robust, support a small set of easy-to-parse ASCII formats.
+All formats below are \textbf{plain text}, one sample per line.
+
+\subsubsection{Format A (Gregorian columns) --- recommended}
+\begin{verbatim}
+# YYYY MM DD HH MM SS   x(Re)   y(Re)   z(Re)
+2017 09 07 00 00 00     4.12    -0.52    0.80
+2017 09 07 00 01 00     4.10    -0.50    0.81
+...
+\end{verbatim}
+\textbf{Notes:} seconds may be omitted if your cadence is 1 minute; if omitted, assume SS=0.
+
+\subsubsection{Format B (ISO-8601 timestamp)}
+\begin{verbatim}
+# ISO_TIME_UTC               x(Re)   y(Re)   z(Re)
+2017-09-07T00:00:00Z         4.12    -0.52    0.80
+2017-09-07T00:01:00Z         4.10    -0.50    0.81
+...
+\end{verbatim}
+\textbf{Notes:} include a trailing \texttt{Z} to indicate UTC.
+
+\subsubsection{Format C (positions only; steady-state only)}
+\begin{verbatim}
+# x(Re)   y(Re)   z(Re)
+4.12    -0.52    0.80
+4.10    -0.50    0.81
+...
+\end{verbatim}
+\textbf{Use only} when Temporal Mode is STEADY\_STATE and you do not need time tagging.
+
+\subsection{Validation tips}
+\begin{itemize}
+  \item Plot $r=\sqrt{x^2+y^2+z^2}$ versus time to catch unit mistakes (km vs $R_E$).
+  \item Verify GSM orientation: in GSM, +X points sunward.
+  \item If you see discontinuities, check that your time column is strictly increasing.
+\end{itemize}
+
+\section{Mode 3: Spherical Shells (SHELLS)}
+Use SHELLS when you want a global (or regional) map at fixed altitude(s).
+\begin{itemize}
+  \item Define one or more radii $r = R_E + h$ (or directly $r$ in $R_E$).
+  \item Choose angular resolution (e.g., $\Delta\lambda$, $\Delta\phi$ or number of points).
+  \item Best for: global cutoff maps, exposure maps, ``LEO shell'' diagnostics.
+\end{itemize}
+
+\subsection{Example shell specification}
+\begin{verbatim}
+# shell radii (Re)
+1.02
+1.05
+1.10
+# grid: 1-degree lat/lon
+LAT_STEP_DEG 1
+LON_STEP_DEG 1
+\end{verbatim}
+
+\section{How sampling is used in the calculations}
+For each sample (point/trajectory location/shell node), AMPS computes a cutoff rigidity (or access) by backtracing
+trajectories in the configured fields. Once $R_c$ is known, the chosen upstream spectrum $J(E)$ is filtered to produce
+local flux and integral quantities.
+
+\section{References (starting points)}
+\begin{itemize}
+  \item Smart, D. F., and Shea, M. A. (2009): trajectory tracing and cutoffs.
+  \item Example mission: Van Allen Probes ephemeris products (for realistic trajectories).
+\end{itemize}
+
+\end{document}

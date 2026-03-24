@@ -1,0 +1,128 @@
+%=====================================================================
+% FILE: doc/latex/temporal_setup.tex
+% INTENT:
+%   Detailed documentation for configuring steady-state versus time-
+%   varying runs in the AMPS Geospace SEP/GCR interface.
+%
+% METHODS / DESIGN:
+%   - Paper-style narrative with concrete guidance tied to the wizard UI.
+%   - Defines the three temporal modes implemented/anticipated.
+%   - Documents the driving-file format used for time-series runs.
+%
+% IMPLEMENTATION NOTES:
+%   - This PDF is linked from the in-app Docs menu.
+%   - Compiles with pdflatex; keep dependencies minimal.
+%   - Output is copied to ../temporal_setup.pdf.
+%
+% LAST UPDATED: 2026-02-21
+%=====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{verbatim}
+\setlist{nosep}
+
+\title{Configuring Steady-State vs. Time-Varying Runs in the AMPS Wizard}
+\author{AMPS Interface Documentation}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Why the ``Temporal Mode'' matters}
+In AMPS geospace transport calculations, the particle equation of motion depends on the background fields
+\begin{equation}
+  \frac{d\mathbf{p}}{dt} = q\,\bigl(\mathbf{E}(\mathbf{r},t) + \mathbf{v}\times\mathbf{B}(\mathbf{r},t)\bigr),
+\end{equation}
+so any time variability in $\mathbf{E}$ and/or $\mathbf{B}$ must be represented consistently.
+The wizard provides a \emph{Temporal Mode} (Step 6) that selects how $t$ enters the problem.
+
+\section{Temporal modes supported by the interface}
+\subsection{STEADY\_STATE (single epoch snapshot)}
+Use this mode when you want a static field configuration.
+\begin{itemize}
+  \item Choose one epoch (date/time) and a field model in Step 3.
+  \item AMPS uses \emph{one} set of geomagnetic driving parameters for the entire run.
+  \item Best for: cutoff maps, parameter sweeps, and controlled comparisons.
+\end{itemize}
+\textbf{Wizard behavior:} the time-series form is hidden; the output preview prints
+\texttt{TEMPORAL\_MODE = STEADY\_STATE}.
+
+\subsection{TIME\_SERIES (driven by an external time history)}
+Use this mode when you need storm-time dynamics (changing pressure/IMF/Dst, etc.).
+\begin{itemize}
+  \item The field model is updated at a cadence \texttt{FIELD\_UPDATE\_DT}.
+  \item Particle injection (or evaluation) occurs at \texttt{INJECT\_DT}.
+  \item \texttt{INJECT\_DT} must be an integer multiple of \texttt{FIELD\_UPDATE\_DT}.
+\end{itemize}
+\textbf{Wizard behavior:} Step 6 shows a timeline illustration of the relationship between the two cadences.
+The interface warns when \texttt{INJECT\_DT < FIELD\_UPDATE\_DT}.
+
+\subsection{MHD\_COUPLED (planned / placeholder)}
+This mode represents fully time-dependent fields supplied by an MHD model (e.g., BATS-R-US or GAMERA).
+It is included in the UI as a forward-looking option; the implementation depends on the field I/O pipeline
+and is typically not available in early CCMC prototype deployments.
+
+\section{Driving sources for TIME\_SERIES}
+The interface provides multiple ways to specify time histories:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{OMNIWeb auto-fetch (UI simulation):} the wizard demonstrates the intended pipeline
+        (fetch solar wind, fetch indices, merge, produce a driving file). In production, a back-end service
+        performs the actual fetch on submission.
+  \item \textbf{Upload a driving file:} you supply a text file with one epoch per row.
+  \item \textbf{Scalar input (debug):} use a constant set of scalars but still exercise the time-series code path.
+\end{enumerate}
+
+\section{Time-series driving file format (\texttt{ts05\_driving.txt})}
+For TS05-style scalar-driven models, AMPS expects one line per epoch.
+A common format is:
+\begin{verbatim}
+# YYYY MM DD HH MM  Dst[nT]  Pdyn[nPa]  Bz[nT]  Vx[km/s]  Nsw[cm^-3]  By[nT]  Bx[nT]
+2017 09 07 00 00   -20.0     2.3      -3.5     -420     6.1        2.0     1.0
+2017 09 07 00 05   -21.0     2.4      -3.7     -430     6.2        2.1     1.0
+...
+\end{verbatim}
+\paragraph{Rules and recommendations}
+\begin{itemize}
+  \item Timestamps must be strictly increasing.
+  \item Use UTC unless explicitly stated otherwise.
+  \item If your cadence is coarser than \texttt{FIELD\_UPDATE\_DT}, AMPS must interpolate or hold values.
+        Prefer to provide data at the intended update cadence.
+  \item If gaps exist, document how they were filled (linear interpolation is common).
+\end{itemize}
+
+\section{Choosing cadences: practical guidance}
+\begin{itemize}
+  \item \textbf{Field update cadence (\texttt{FIELD\_UPDATE\_DT}):} choose based on how quickly the field model changes.
+        For storm-time studies, \SI{1}{\minute} to \SI{5}{\minute} is typical.
+  \item \textbf{Injection cadence (\texttt{INJECT\_DT}):} choose based on how often you want new particles injected
+        (or how often you want diagnostics written). \SI{15}{\minute} to \SI{60}{\minute} is common.
+  \item Make \texttt{INJECT\_DT} a multiple of \texttt{FIELD\_UPDATE\_DT} to avoid ambiguous partial steps.
+\end{itemize}
+
+\section{Worked configuration examples}
+\subsection{Example A: steady-state cutoff map}
+\begin{itemize}
+  \item Temporal Mode: \textbf{STEADY\_STATE}
+  \item Field model: T96 or T15 snapshot at a single epoch
+  \item Output domain: spherical shells at multiple altitudes
+\end{itemize}
+
+\subsection{Example B: Sep 2017 storm time-series}
+\begin{itemize}
+  \item Temporal Mode: \textbf{TIME\_SERIES}
+  \item \texttt{FIELD\_UPDATE\_DT = 5 min}, \texttt{INJECT\_DT = 30 min}
+  \item Driving: \texttt{ts05\_driving.txt} generated from OMNI + Dst
+  \item Trajectory evaluation: along a spacecraft ephemeris (see the Output Domain doc)
+\end{itemize}
+
+\section{References (starting points)}
+\begin{itemize}
+  \item Tsyganenko, N. A., and Sitnov, M. I. (2005): TS05 storm-time geomagnetic field model.
+  \item Smart, D. F., and Shea, M. A. (2009): Geomagnetic cutoff rigidities and trajectory tracing.
+\end{itemize}
+
+\end{document}
