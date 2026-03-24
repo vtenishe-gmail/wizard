@@ -1,0 +1,8 @@
+# NAIRAS trajectory — Van Allen Probe A (Sep 2017 SEP event)
+# Gregorian format: 9 columns, whitespace-delimited
+# YYYY MM DD HH mm ss.s   Lat[deg]  Lon[deg]  Alt[km]
+2017 09 07 00 00 00.0  -12.75   140.33  21045.8
+2017 09 07 00 01 00.0  -12.48   141.92  21089.4
+2017 09 07 00 02 00.0  -12.21   143.51  21133.1
+2017 09 10 16 00 00.0   +34.22  -100.44  28765.3
+2017 09 10 19 59 00.0   +62.31   -94.20  36418.5
