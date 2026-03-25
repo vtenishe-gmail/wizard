@@ -324,7 +324,7 @@ function exportBundleJSON() {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = `AMPS_operator_bundle_${(S.runName || 'run').replace(/\s+/g,'_')}.json`;
+  a.download = `AMPS_operator_bundle_${(S.runName || 'run').replaceAll(/\s+/g,'_')}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -356,7 +356,7 @@ function exportBundleCSV() {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = `AMPS_operator_bundle_${(S.runName || 'run').replace(/\s+/g,'_')}.csv`;
+  a.download = `AMPS_operator_bundle_${(S.runName || 'run').replaceAll(/\s+/g,'_')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }

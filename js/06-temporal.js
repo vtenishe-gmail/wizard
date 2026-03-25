@@ -1090,9 +1090,6 @@ function initTsFileUpload() {
   /* Dropzone: click to open picker */
   if (dz) {
     dz.addEventListener('click',   () => fi.click());
-    dz.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); }
-    });
     dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => {
@@ -1498,9 +1495,6 @@ function initT96FileUpload() {
 
   if (dz) {
     dz.addEventListener('click',   () => fi.click());
-    dz.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); }
-    });
     dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => {
@@ -2294,7 +2288,6 @@ function initT01FileUpload() {
     qdFi.addEventListener('change', function() { if (this.files.length > 0) { _applyQdFile(this.files[0]); } this.value = ''; });
     if (qdDz) {
       qdDz.addEventListener('click',   () => qdFi.click());
-      qdDz.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); qdFi.click(); } });
       qdDz.addEventListener('dragover',  e => { e.preventDefault(); qdDz.classList.add('drag-over'); });
       qdDz.addEventListener('dragleave', () => qdDz.classList.remove('drag-over'));
       qdDz.addEventListener('drop', e => { e.preventDefault(); qdDz.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) _applyQdFile(e.dataTransfer.files[0]); });
@@ -2312,7 +2305,6 @@ function initT01FileUpload() {
   fi.addEventListener('change', function() { if (this.files.length > 0) { _applyT01File(this.files[0]); } this.value = ''; });
   if (dz) {
     dz.addEventListener('click',   () => fi.click());
-    dz.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); fi.click(); } });
     dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); if (e.dataTransfer.files.length > 0) _applyT01File(e.dataTransfer.files[0]); });
@@ -2672,9 +2664,6 @@ function initTA15FileUpload() {
 
   if (dz) {
     dz.addEventListener('click',   () => fi.click());
-    dz.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); }
-    });
     dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => {
@@ -2985,7 +2974,6 @@ function initTA16RbfFileUpload() {
   fi.onchange = function() { if (this.files.length > 0) _applyTA16RbfFile(this.files[0]); };
   btn.onclick = () => fi.click();
   dz.addEventListener('click', () => fi.click());
-  dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
   ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
   ['dragleave','dragend','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
   dz.addEventListener('drop', e => { if (e.dataTransfer.files.length > 0) _applyTA16RbfFile(e.dataTransfer.files[0]); });
@@ -3366,7 +3354,6 @@ function initVsFileUpload() {
   });
   if (dz) {
     dz.addEventListener('click',    () => fi.click());
-    dz.addEventListener('keydown',  e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
     dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => {
@@ -3648,7 +3635,6 @@ function initWeimerTsFileUpload() {
   });
   if (dz) {
     dz.addEventListener('click',    () => fi.click());
-    dz.addEventListener('keydown',  e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
     dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
     dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
     dz.addEventListener('drop', e => {

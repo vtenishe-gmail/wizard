@@ -467,14 +467,14 @@ PITCH_ISOTROPIC        T                 ! isotropic injection
 
   const el=$('review-param'); if(!el) return;
   el.innerHTML=txt
-    .replace(/^(#\w+)/gm,'<span class="r-section">$1</span>')
+    .replaceAll(/^(#\w+)/gm,'<span class="r-section">$1</span>')
     /* ReDoS fix (SonarQube S5852): replaced .+ with [^\r\n]+ to explicitly
      * exclude newline characters from the match. With the /m (multiline) flag,
      * .+ can span across line boundaries in some JS engines during backtracking,
      * allowing a pathological input to cause super-linear runtime. Bounding the
      * match to a single line eliminates that backtracking surface. */
-    .replace(/^(! [^\r\n]+)/gm,'<span class="r-comment">$1</span>')
-    .replace(/(AUTO)/g,'<span class="r-auto">AUTO</span>');
+    .replaceAll(/^(! [^\r\n]+)/gm,'<span class="r-comment">$1</span>')
+    .replaceAll(/(AUTO)/g,'<span class="r-auto">AUTO</span>');
 
   buildManifest(); buildValidation();
   return txt;
