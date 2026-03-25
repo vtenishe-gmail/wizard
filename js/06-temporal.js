@@ -1583,6 +1583,7 @@ function _approxDipoleTilt(dateUTC) {
 */
 let _t01Dataset       = [];   // [{ts:Number, line:String}, ...]
 let _t01ConvertedLines = null; // string[] for downloadT01File()
+let _t01QdRawText      = null; // raw uploaded Qin-Denton text for T01 conversion
 
 /* Parse a timestamp from an output line "YYYY MM DD HH mm   ..." → ms */
 function _t01LineTs(line) {
@@ -1680,7 +1681,7 @@ function _t01RenderTable() {
 function t01ClearDataset() {
   _t01Dataset = [];
   _t01ConvertedLines = null;
-  let _t01QdRawText = null;
+  _t01QdRawText = null;
 
   /* Reset pipeline steps */
   ['t01-os-1','t01-os-2','t01-os-3','t01-os-4'].forEach((id, idx) => {
