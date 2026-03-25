@@ -337,7 +337,7 @@ LLMAP.syncStampModeToggle = function() {
   if (!select || !wrap) return;
   let mode = select.value || 'full';
   Array.prototype.forEach.call(wrap.querySelectorAll('[data-stamp-mode]'), function(btn) {
-    btn.classList.toggle('on', btn.getAttribute('data-stamp-mode') === mode);
+    btn.classList.toggle('on', btn.dataset.stampMode === mode);
   });
 };
 
@@ -714,7 +714,7 @@ function initLonLatViewer() {
   if (stampToggle && stampSelect) {
     Array.prototype.forEach.call(stampToggle.querySelectorAll('[data-stamp-mode]'), function(btn) {
       btn.addEventListener('click', function() {
-        let mode = btn.getAttribute('data-stamp-mode') || 'full';
+        let mode = btn.dataset.stampMode || 'full';
         if (stampSelect.value !== mode) {
           stampSelect.value = mode;
           LLMAP.syncStampModeToggle();
