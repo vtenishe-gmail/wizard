@@ -480,9 +480,36 @@ PITCH_ISOTROPIC        T                 ! isotropic injection
   return txt;
 }
 
-function copyParam(){ navigator.clipboard.writeText(buildReview().replace(/<[^>]+>/g,'')).then(()=>{ const b=$('copy-param'); if(b){b.textContent='✓ Copied';setTimeout(()=>{b.textContent='📋 Copy';},2000);} }); }
+
+/**
+ * Return the plain-text AMPS_PARAM content produced by buildReview().
+ *
+ * buildReview() already returns the raw text that is written into the review
+ * panel.  Historically, this code attempted to strip HTML tags with a regex
+ * before copying/downloading/bundling the text.  That regex was unnecessary
+ * here because buildReview() does not return HTML markup, and static-analysis
+ * tools correctly flag generic tag-stripping regexes as potentially vulnerable
+ * to catastrophic backtracking on adversarial inputs.
+ *
+ * To keep this path robust even if buildReview() is changed in the future, we
+ * normalize through a detached DOM node instead of regex-based tag stripping.
+ * For plain text input this is a no-op; for accidental HTML input it safely
+ * extracts the rendered text content without regex backtracking risk.
+ *
+ * @returns {string}
+ */
+function _getReviewPlainText() {
+  const txt = buildReview() || '';
+  if (!txt || txt.indexOf('<') === -1) return txt;
+
+  const div = document.createElement('div');
+  div.innerHTML = txt;
+  return div.textContent || '';
+}
+
+function copyParam(){ navigator.clipboard.writeText(_getReviewPlainText()).then(()=>{ const b=$('copy-param'); if(b){b.textContent='✓ Copied';setTimeout(()=>{b.textContent='📋 Copy';},2000);} }); }
 function downloadParam(){
-  const txt=(buildReview()||'').replace(/<[^>]+>/g,'');
+  const txt = _getReviewPlainText();
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
   a.download='AMPS_PARAM.in'; a.click();
 }
@@ -649,7 +676,7 @@ async function downloadBundle() {
 
   try {
     /* ── 1. Collect entries ── */
-    const paramTxt = (buildReview() || '').replace(/<[^>]+>/g, '');
+    const paramTxt = _getReviewPlainText();
     const entries  = { 'AMPS_PARAM.in': new TextEncoder().encode(paramTxt) };
 
     for (const file of [S.trajFile, S.tsFile, S.weimerFile, S.specTableFile].filter(Boolean)) {

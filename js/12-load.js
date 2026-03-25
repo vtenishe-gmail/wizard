@@ -145,7 +145,16 @@ function parseParamFile(text) {
     const commentedParam = /^\s*!\s+([A-Z][A-Z0-9_]+)\s+([^\r\n]*)/.exec(line);
     if (commentedParam) {
       const key = commentedParam[1].trim();
-      let   val = commentedParam[2].trim().replace(/\s*![^\r\n]*/, '').trim();
+      let val = commentedParam[2].trim();
+
+      // Remove any trailing inline comment without using another regex.
+      // SonarQube flags patterns such as /\s*![^\r\n]*/ as potentially
+      // vulnerable to super-linear backtracking. Here we only need to strip
+      // everything after the first inline comment marker, so a simple index
+      // search is safer, clearer, and runs in linear time.
+      const commentedBangIndex = val.indexOf('!');
+      if (commentedBangIndex !== -1) val = val.slice(0, commentedBangIndex).trim();
+
       if (val && key.length > 2 && !(key in kv)) kv[key] = val;
       continue;
     }
@@ -162,7 +171,15 @@ function parseParamFile(text) {
     const paramMatch = /^\s*([A-Z][A-Z0-9_]+)\s+([^\r\n]*)/.exec(line);
     if (paramMatch) {
       const key = paramMatch[1].trim();
-      kv[key] = paramMatch[2].trim().replace(/\s*![^\r\n]*/, '').trim();
+      let val = paramMatch[2].trim();
+
+      // Same inline-comment stripping logic as above: find the first '!'
+      // and discard everything to its right. This avoids regex backtracking
+      // while preserving the existing parsing behavior for valid input.
+      const paramBangIndex = val.indexOf('!');
+      if (paramBangIndex !== -1) val = val.slice(0, paramBangIndex).trim();
+
+      kv[key] = val;
     }
   }
 
