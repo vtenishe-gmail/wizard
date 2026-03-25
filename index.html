@@ -3226,7 +3226,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             <span style="color:var(--orange);">⚠ W1…W6 columns are required — a file without them will be rejected.</span>
             Whitespace-delimited. Times must be monotonically increasing UTC. Uploaded files are parsed into the same preview dataset used by the auto-fetch panel.
           </div>
-          <div role="button" tabindex="0" class="dropzone" id="ts05-dropzone">
+          <div role="button" tabindex="0" class="dropzone" id="ts05-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="dz-icon">📄</div>
             <div class="dz-primary">Drop ts05_driving.txt here or click to browse</div>
             <div class="dz-sub">.txt · .dat · max 50 MB — must include W1…W6 columns (col 18–23)</div>
@@ -3381,7 +3381,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             Comment lines start with <code>#</code>. Whitespace-delimited. Times must be monotonically increasing UTC.
             Uploaded files are now parsed into the same preview dataset used by the auto-fetch panel.
           </div>
-          <div role="button" tabindex="0" class="dropzone" id="t96-dropzone">
+          <div role="button" tabindex="0" class="dropzone" id="t96-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="dz-icon">📄</div>
             <div class="dz-primary">Drop t96_driving.txt here or click to browse</div>
             <div class="dz-sub">.txt · .dat · max 50 MB — 5 driver columns (no W integrals needed)</div>
@@ -3509,7 +3509,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;line-height:1.5;">
               Drop or paste a Qin-Denton 5-min file below. The converter extracts the T01 columns, trims to your event window (Step 7 start/end), and produces a ready-to-use t01_driving.txt for download.
             </div>
-            <div role="button" tabindex="0" class="dropzone" id="t01-qd-dropzone" style="margin-bottom:8px;">
+            <div role="button" tabindex="0" class="dropzone" id="t01-qd-dropzone" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
               <div class="dz-icon">📦</div>
               <div class="dz-primary">Drop Qin-Denton file here or click to browse</div>
               <div class="dz-sub">QinDenton_YYYY*.txt · any cadence · max 200 MB</div>
@@ -3559,7 +3559,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             <a href="https://rbsp-ect.newmexicoconsortium.org/data_pub/QinDenton/" target="_blank" style="color:var(--accent-bright);">Qin-Denton archive</a>
             (RBSP-ECT). Comment lines start with <code>#</code>. Whitespace-delimited. Times must be monotonically increasing UTC.
           </div>
-          <div role="button" tabindex="0" class="dropzone" id="t01-dropzone">
+          <div role="button" tabindex="0" class="dropzone" id="t01-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="dz-icon">📄</div>
             <div class="dz-primary">Drop t01_driving.txt here or click to browse</div>
             <div class="dz-sub">.txt · .dat · max 50 MB — 7 driver columns (Pdyn Dst By Bz G1 G2 Tilt)</div>
@@ -3714,7 +3714,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             Times use <b>DOY</b> (day-of-year), not MM/DD. N-index and B-index must be pre-computed.
             See the <a href="doc/ta15_data_format.txt" target="_blank" style="color:var(--accent-bright);">TA15 data format doc</a> for exact column order and units.
           </div>
-          <div role="button" tabindex="0" class="dropzone" id="ta15-dropzone">
+          <div role="button" tabindex="0" class="dropzone" id="ta15-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="dz-icon">📄</div>
             <div class="dz-primary">Drop ta15_driving.txt here or click to browse</div>
             <div class="dz-sub">.txt · .dat · max 50 MB — 19 driver columns (DOY-based timestamps)</div>
@@ -3857,7 +3857,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             Times use <b>DOY</b> (day-of-year), not MM/DD. SymHc is the centered 30-minute average of Sym-H.
             See the <a href="doc/ta16_data_format.txt" target="_blank" style="color:var(--accent-bright);">TA16RBF data format doc</a> for exact column order and units.
           </div>
-          <div role="button" tabindex="0" class="dropzone" id="ta16rbf-dropzone">
+          <div role="button" tabindex="0" class="dropzone" id="ta16rbf-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
             <div class="dz-icon">📄</div>
             <div class="dz-primary">Drop ta16_driving.txt here or click to browse</div>
             <div class="dz-sub">.txt · .dat · max 50 MB — 20 driver columns (DOY-based timestamps)</div>
@@ -4061,7 +4061,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               AMPS derives A(Kp) internally at each step; you only need to supply Kp.
               Uploaded files are parsed into the preview dataset used by the auto-fetch panel.
             </div>
-            <div role="button" tabindex="0" class="dropzone" id="vs-dropzone">
+            <div role="button" tabindex="0" class="dropzone" id="vs-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
               <div class="dz-icon">📄</div>
               <div class="dz-primary">Drop vs_driving.txt here or click to browse</div>
               <div class="dz-sub">.txt · .dat · max 20 MB — YYYY MM DD HH mm  Kp</div>
@@ -4220,7 +4220,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               Comment lines start with <code>#</code>. Times must be monotonically increasing UTC.
               Uploaded files are merged into the preview dataset.
             </div>
-            <div role="button" tabindex="0" class="dropzone" id="weimer-ts-dropzone">
+            <div role="button" tabindex="0" class="dropzone" id="weimer-ts-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
               <div class="dz-icon">📄</div>
               <div class="dz-primary">Drop weimer_driving.txt here or click to browse</div>
               <div class="dz-sub">.txt · .dat · max 50 MB — 4 driver columns: Bz By Vx Pdyn</div>
@@ -4517,7 +4517,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
         </div>
       </div>
 
-      <div role="button" tabindex="0" class="dropzone" id="traj-dropzone">
+      <div role="button" tabindex="0" class="dropzone" id="traj-dropzone" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="dz-icon">&#128760;</div>
         <div class="dz-primary">Drop trajectory file or click to browse</div>
         <div class="dz-sub" id="traj-dz-sub">Timestamps: Gregorian (9 cols) or MJD (4 cols) &middot; .txt / .csv / .dat</div>
@@ -4900,7 +4900,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
     </div>
 
     <!-- Dropzone -->
-    <div id="load-dropzone" class="load-dropzone" tabindex="0" role="button" aria-label="Click or drag a file here to load">
+    <div id="load-dropzone" class="load-dropzone" tabindex="0" role="button" aria-label="Click or drag a file here to load" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
       <div style="font-size:36px;margin-bottom:8px;opacity:.6;">&#128196;</div>
       <div style="font-size:13px;font-weight:500;color:var(--text);">Drop AMPS_PARAM.in here, or click to browse</div>
       <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Accepts .in, .txt, or .param files</div>
