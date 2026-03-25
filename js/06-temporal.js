@@ -3060,13 +3060,33 @@ function updateEfieldDriverTab(model) {
   const target = document.getElementById(targetId);
   if (target) target.style.display = '';
 
-  /* The fold mirrors Step 6 availability: visible whenever the E-field step is
-     active (fieldMethod === 'GRID_3D'), hidden when gridless (no E-field at all).
-     A model value of 'NONE' means the user hasn't chosen a convection model yet
-     but Step 6 is still live — keep the fold visible so they can see the notice. */
-  const efieldStepActive = S.fieldMethod !== 'GRIDLESS';
+  /* Determine whether E-field drivers are active.
+     Inactive when: GRIDLESS mode (no E-field physics) or no convection model selected (NONE).
+     The fold is always visible — when inactive, show a badge + explanation notice
+     instead of hiding the section, so users know why and how to enable it. */
+  const isGridless  = S.fieldMethod === 'GRIDLESS';
+  const isNoneModel = !key;                          // model is NONE / unset
+  const efieldActive = !isGridless && !isNoneModel;
+
+  /* Badge in fold header */
+  const badge = document.getElementById('efield-drv-inactive-badge');
+  if (badge) badge.style.display = efieldActive ? 'none' : '';
+
+  /* Inactive notice below the header */
+  const notice = document.getElementById('efield-drv-inactive-notice');
+  const reason = document.getElementById('efield-drv-inactive-reason');
+  if (notice) notice.style.display = efieldActive ? 'none' : '';
+  if (reason) {
+    if (isGridless) {
+      reason.innerHTML = 'The <b>Gridless</b> calculation method (Step 1) does not use a convection electric field. Switch to <b>3-D Grid</b> in Step 1 to enable E-field drivers.';
+    } else {
+      reason.innerHTML = 'No convection model is selected. Go to <b>Step 5 → E-Field</b> and choose <b>Volland–Stern</b> or <b>Weimer 2005</b>.';
+    }
+  }
+
+  /* Dim the fold header + body when inactive */
   const fold = document.getElementById('efield-drv-fold');
-  if (fold) fold.style.display = efieldStepActive ? '' : 'none';
+  if (fold) fold.style.opacity = efieldActive ? '' : '0.55';
 
   const section = document.getElementById('efield-drv-section');
   if (section) section.style.display = '';
