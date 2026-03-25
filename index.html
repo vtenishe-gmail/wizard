@@ -3095,7 +3095,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
       ══════════════════════════════════════════════════════════════════════ -->
 
       <!-- ── B-field driver fold ── -->
-      <div class="drv-fold" id="bfield-drv-fold">
+      <div class="drv-fold fold-closed" id="bfield-drv-fold">
         <div class="drv-fold-hd" role="button" tabindex="0"
              onclick="toggleDrvFold('bfield-drv-fold')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrvFold('bfield-drv-fold');}">
@@ -3908,14 +3908,21 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
       </div><!-- /bfield-drv-fold -->
 
       <!-- ── E-field driver fold ── -->
-      <div class="drv-fold" id="efield-drv-fold">
+      <div class="drv-fold fold-closed" id="efield-drv-fold">
         <div class="drv-fold-hd" role="button" tabindex="0"
              onclick="toggleDrvFold('efield-drv-fold')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrvFold('efield-drv-fold');}">
           <div class="drv-fold-icon" style="background:rgba(255,208,75,.12);">⚡</div>
           <div class="drv-fold-title">Electric Field Drivers</div>
           <div class="drv-fold-sub" id="efield-drv-fold-sub">Active tab mirrors the convection model chosen in Step 5</div>
+          <!-- inactive badge: shown when E-field is disabled -->
+          <span id="efield-drv-inactive-badge" style="display:none;margin-left:10px;padding:2px 8px;border-radius:3px;background:rgba(255,90,90,.15);border:1px solid rgba(255,90,90,.35);color:#ff8080;font-size:10px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;letter-spacing:.04em;">INACTIVE</span>
           <span class="drv-fold-chevron">&#9660;</span>
+        </div>
+        <!-- inactive notice: shown when E-field step is disabled -->
+        <div id="efield-drv-inactive-notice" style="display:none;margin:0 14px 0 14px;padding:10px 14px;border-radius:5px;background:rgba(255,90,90,.07);border:1px solid rgba(255,90,90,.25);border-top:none;font-size:11px;line-height:1.6;">
+          <span style="color:#ff8080;font-weight:600;">Electric field drivers are currently inactive.</span>
+          <span id="efield-drv-inactive-reason" style="color:var(--text-dim);margin-left:6px;"></span>
         </div>
         <div class="drv-fold-body" id="efield-drv-section">
           <!-- SS-mode notice: shown when STEADY_STATE is selected -->
