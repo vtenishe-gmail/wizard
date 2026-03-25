@@ -3187,7 +3187,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               <div class="hint">Recent events may require near-real-time products before the definitive archive is available.</div>
             </div>
             <div class="field">
-              <label>Driver content</label>
+              <span class="field-label">Driver content</span>
               <div class="hint" style="margin-top:6px;line-height:1.55;">
                 Downloaded file: <code>Bx By Bz Vx Vy Vz Np Temp SYM-H IMFflag SWflag Tilt Pdyn W1…W6</code><br/>
                 Preview uses a merged canonical dataset so uploaded TS05 files and preview fetches stay in one table.
@@ -3210,7 +3210,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               </div>
             </div>
             <div style="overflow:auto;max-height:300px;border:1px solid var(--line);border-radius:12px;">
-              <table class="ts05-table" id="ts05-preview-table" style="width:100%;min-width:1560px;border:none;border-radius:0;">
+              <table class="ts05-table" id="ts05-preview-table" aria-label="TS05 driving data preview" style="width:100%;min-width:1560px;border:none;border-radius:0;">
                 <thead></thead>
                 <tbody></tbody>
               </table>
@@ -3341,7 +3341,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               <div class="hint">The downloaded T96 file always contains an explicit tilt column for preview transparency.</div>
             </div>
             <div class="field">
-              <label>Driver content</label>
+              <span class="field-label">Driver content</span>
               <div class="hint" style="margin-top:6px;line-height:1.55;">
                 Downloaded file: <code>Dst Pdyn By Bz Tilt</code><br/>
                 Preview-only extras: <code>Vsw Np Kp</code>
@@ -3365,7 +3365,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               </div>
             </div>
             <div style="overflow:auto;max-height:280px;border:1px solid var(--line);border-radius:12px;">
-              <table class="ts05-table" id="t96-preview-table" style="width:100%;min-width:920px;border:none;border-radius:0;">
+              <table class="ts05-table" id="t96-preview-table" aria-label="T96 driving data preview" style="width:100%;min-width:920px;border:none;border-radius:0;">
                 <thead></thead>
                 <tbody></tbody>
               </table>
@@ -3471,7 +3471,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               Like TA15, T01 can now preview a client-side fetch pipeline for the current Step 7 event window. The preview assembles OMNI-style IMF / solar-wind inputs, estimates <b>G1</b> and <b>G2</b>, computes dipole tilt, and opens the dataset viewer automatically. Use the Qin-Denton converter below when you want the archived pre-computed G1/G2 values.
             </div>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-              <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label style="font-size:11px;color:var(--text-dim);">Cadence:</label>
+              <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label for="t01-omni-cadence" style="font-size:11px;color:var(--text-dim);">Cadence:</label>
               <select id="t01-omni-cadence" class="sel-compact" style="font-size:11px;">
                 <option value="5 min">5 min (recommended)</option>
                 <option value="1 min">1 min</option>
@@ -3542,7 +3542,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             </div>
             <!-- Scrollable fixed-height table with sticky header -->
             <div style="max-height:260px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:5px;">
-              <table class="ts05-table" id="t01-preview-table" style="width:100%;min-width:1020px;border:none;border-radius:0;">
+              <table class="ts05-table" id="t01-preview-table" aria-label="T01 driving data preview" style="width:100%;min-width:1020px;border:none;border-radius:0;">
                 <thead style="position:sticky;top:0;z-index:2;background:var(--bg-mid);"></thead>
                 <tbody></tbody>
               </table>
@@ -3672,7 +3672,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
 
           <!-- Fetch controls -->
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;">
-            <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label style="font-size:11px;color:var(--text-dim);">Cadence:</label>
+            <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label for="ta15-omni-cadence" style="font-size:11px;color:var(--text-dim);">Cadence:</label>
             <select id="ta15-omni-cadence" class="sel-compact" style="font-size:11px;">
               <option value="5 min">5 min (recommended)</option>
               <option value="1 min">1 min</option>
@@ -3697,7 +3697,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               </div>
             </div>
             <div style="max-height:260px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:5px;">
-              <table class="ts05-table" id="ta15-preview-table" style="width:100%;min-width:1450px;border:none;border-radius:0;">
+              <table class="ts05-table" id="ta15-preview-table" aria-label="TA15 driving data preview" style="width:100%;min-width:1450px;border:none;border-radius:0;">
                 <thead style="position:sticky;top:0;z-index:2;background:var(--bg-mid);"></thead>
                 <tbody></tbody>
               </table>
@@ -3819,7 +3819,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
           </div>
 
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;">
-            <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label style="font-size:11px;color:var(--text-dim);">Cadence:</label>
+            <div class="drv-cadence-row" style="display:flex;align-items:center;gap:6px;"><label for="ta16rbf-omni-cadence" style="font-size:11px;color:var(--text-dim);">Cadence:</label>
             <select id="ta16rbf-omni-cadence" class="sel-compact" style="font-size:11px;">
               <option value="5 min">5 min (recommended)</option>
               <option value="1 min">1 min</option>
@@ -3842,7 +3842,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
               </div>
             </div>
             <div style="max-height:260px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:5px;">
-              <table class="ts05-table" id="ta16rbf-preview-table" style="width:100%;min-width:1580px;border:none;border-radius:0;">
+              <table class="ts05-table" id="ta16rbf-preview-table" aria-label="TA16RBF driving data preview" style="width:100%;min-width:1580px;border:none;border-radius:0;">
                 <thead style="position:sticky;top:0;z-index:2;background:var(--bg-mid);"></thead>
                 <tbody></tbody>
               </table>
@@ -4017,7 +4017,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
                 <div class="hint">Used when 3-hr Kp is unavailable for a given interval.</div>
               </div>
               <div class="field">
-                <label>Driver content</label>
+                <span class="field-label">Driver content</span>
                 <div class="hint" style="margin-top:6px;line-height:1.55;">
                   Download file: <code>YYYY MM DD HH mm  Kp</code><br/>
                   Preview extras (not in file): <code>Dst A(Kp)</code>
@@ -4043,7 +4043,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
                 </div>
               </div>
               <div style="overflow:auto;max-height:260px;border:1px solid var(--line);border-radius:12px;">
-                <table class="ts05-table" id="vs-preview-table" style="width:100%;min-width:540px;border:none;border-radius:0;">
+                <table class="ts05-table" id="vs-preview-table" aria-label="Volland–Stern driving data preview" style="width:100%;min-width:540px;border:none;border-radius:0;">
                   <thead style="position:sticky;top:0;z-index:2;background:var(--bg-mid);"></thead>
                   <tbody></tbody>
                 </table>
@@ -4080,7 +4080,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
             </div>
             <div class="frow c4" style="margin-top:10px;">
               <div class="field">
-                <label>Kp (from Step 5)</label>
+                <span class="field-label">Kp (from Step 5)</span>
                 <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--yellow);padding:6px 0;" id="vs-scalar-kp-display">5.0</div>
                 <div class="hint">Change Kp in Step 5 → Volland–Stern panel.</div>
               </div>
@@ -4203,7 +4203,7 @@ E[MeV/n]    dJ/dE[particles/cm²/s/sr/(MeV/n)]
                 </div>
               </div>
               <div style="overflow:auto;max-height:260px;border:1px solid var(--line);border-radius:12px;">
-                <table class="ts05-table" id="weimer-ts-preview-table" style="width:100%;min-width:640px;border:none;border-radius:0;">
+                <table class="ts05-table" id="weimer-ts-preview-table" aria-label="Weimer 2005 driving data preview" style="width:100%;min-width:640px;border:none;border-radius:0;">
                   <thead style="position:sticky;top:0;z-index:2;background:var(--bg-mid);"></thead>
                   <tbody></tbody>
                 </table>
