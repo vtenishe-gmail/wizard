@@ -49,10 +49,12 @@ LAST UPDATED: 2026-02-21
    Dark NASA mission-control aesthetic:
      deep navy backgrounds · electric blue accents
      terminal green for validated states · amber for warnings
-   Typography: IBM Plex Sans (UI) + IBM Plex Mono (data / code)
+   Typography: local/system sans and mono stacks sized to match the original IBM Plex look
 ═══════════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+/* Local/system font stacks are used intentionally so the site does not depend
+   on a third-party Google Fonts stylesheet that cannot be protected with
+   Subresource Integrity in a simple <link> tag. */
 
 :root {
   /* ── Background layers ── */
@@ -109,8 +111,8 @@ LAST UPDATED: 2026-02-21
   --col-bx:    #78d4ff;   /* Bx    — sky blue       */
 
   /* ── Typography ── */
-  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', 'Cascadia Code', 'Fira Code', monospace;
 
   /* ── Geometry ── */
   --radius:    6px;
