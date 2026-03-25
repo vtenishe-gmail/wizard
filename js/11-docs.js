@@ -126,7 +126,7 @@ LAST UPDATED: 2026-02-21
       if(hdr){
         e.preventDefault();
         e.stopPropagation();
-        let tid = hdr.getAttribute('data-target');
+        let tid = hdr.dataset.target;
         toggleSection(tid);
         return;
       }
