@@ -793,7 +793,7 @@ function _ts05RenderTable() {
   }
 
   const cols = ['YYYY','DOY','HH','mm','BX [NT]','BY [NT]','BZ [NT]','VX [KM/S]','VY','VZ','NP [CM⁻³]','TEMP [K]','SYM-H','IMF','SW','TILT [RAD]','PDYN [NPA]','W1','W2','W3','W4','W5','W6'];
-  table.querySelector('thead').innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+  table.querySelector('thead').innerHTML = '<tr>' + cols.map(c => `<th scope="col">${c}</th>`).join('') + '</tr>';
   table.querySelector('tbody').innerHTML = _ts05Dataset.map(row => {
     const p = row.line.trim().split(/\s+/);
     return '<tr>' + cols.map((_, i) => `<td>${p[i] ?? ''}</td>`).join('') + '</tr>';
@@ -1197,7 +1197,7 @@ function _t96RenderTable() {
     { lbl: 'Tilt [°]',   th: 'c-vx',   td: r => { const c=r.line.trim().split(/\s+/); return `<td class="c-vx">${c[9]}</td>`; } }
   ];
 
-  const thHtml = COLS.map(col => col.th ? `<th class="${col.th}">${col.lbl}</th>` : (col.thStyle ? `<th style="${col.thStyle}">${col.lbl}</th>` : `<th>${col.lbl}</th>`)).join('');
+  const thHtml = COLS.map(col => col.th ? `<th scope="col" class="${col.th}">${col.lbl}</th>` : (col.thStyle ? `<th scope="col" style="${col.thStyle}">${col.lbl}</th>` : `<th scope="col">${col.lbl}</th>`)).join('');
   const rowsHtml = _t96Dataset.map(row => `<tr>${COLS.map(col => col.td(row)).join('')}</tr>`).join('');
 
   const thead = table.querySelector('thead');
@@ -1656,9 +1656,9 @@ function _t01RenderTable() {
   ];
 
   const thHtml = COLS.map(col => {
-    if (col.th)      return `<th class="${col.th}">${col.lbl}</th>`;
-    if (col.thStyle) return `<th style="${col.thStyle}">${col.lbl}</th>`;
-    return `<th>${col.lbl}</th>`;
+    if (col.th)      return `<th scope="col" class="${col.th}">${col.lbl}</th>`;
+    if (col.thStyle) return `<th scope="col" style="${col.thStyle}">${col.lbl}</th>`;
+    return `<th scope="col">${col.lbl}</th>`;
   }).join('');
 
   const rowsHtml = _t01Dataset.map(row =>
@@ -2775,7 +2775,7 @@ function _ta16rbfRenderTable() {
     {h:'B-index', td:r=>`<td style="color:#f0c080;">${Number(r.parsed.bidx).toFixed(4)}</td>`},
     {h:'SymHc [nT]', td:r=>`<td style="color:#e090ff;">${Number(r.parsed.symhc).toFixed(1)}</td>`}
   ];
-  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c=>`<th>${c.h}</th>`).join('')}</tr>`;
+  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c=>`<th scope="col">${c.h}</th>`).join('')}</tr>`;
   table.querySelector('tbody').innerHTML = _ta16rbfDataset.map(r=>`<tr>${COLS.map(c=>c.td(r)).join('')}</tr>`).join('');
 }
 
@@ -3167,7 +3167,7 @@ function _vsRenderTable() {
     { h: 'Dst [nT] (preview)',
       td: r => `<td style="color:var(--red);">${r.dst != null ? r.dst.toFixed(0) : '—'}</td>` },
   ];
-  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c => `<th>${c.h}</th>`).join('')}</tr>`;
+  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c => `<th scope="col">${c.h}</th>`).join('')}</tr>`;
   table.querySelector('tbody').innerHTML = _vsDataset.map(row =>
     `<tr>${COLS.map(c => c.td(row)).join('')}</tr>`
   ).join('');
@@ -3448,7 +3448,7 @@ function _weimerTsRenderTable() {
     { h: 'Pdyn [nPa]',
       td: r => `<td style="color:var(--orange);font-family:var(--mono);">${r.pdyn.toFixed(3)}</td>` },
   ];
-  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c => `<th>${c.h}</th>`).join('')}</tr>`;
+  table.querySelector('thead').innerHTML = `<tr>${COLS.map(c => `<th scope="col">${c.h}</th>`).join('')}</tr>`;
   table.querySelector('tbody').innerHTML = _weimerTsDataset.map(row =>
     `<tr>${COLS.map(c => c.td(row)).join('')}</tr>`
   ).join('');

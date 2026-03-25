@@ -518,19 +518,19 @@ function gridParamChange() {
   /* ── Read grid dimension inputs ──
    *  parseInt/parseFloat with fallback to existing S value if
    *  the input is empty or non-numeric (defensive against NaN). */
-  S.gridNx   = parseInt($('grid-nx')?.value)   || S.gridNx;
-  S.gridNy   = parseInt($('grid-ny')?.value)   || S.gridNy;
-  S.gridNz   = parseInt($('grid-nz')?.value)   || S.gridNz;
+  S.gridNx   = Number.parseInt($('grid-nx')?.value)   || S.gridNx;
+  S.gridNy   = Number.parseInt($('grid-ny')?.value)   || S.gridNy;
+  S.gridNz   = Number.parseInt($('grid-nz')?.value)   || S.gridNz;
 
   /* ── Read grid spatial extent inputs ──
    *  Nullish coalescing (??) is used instead of || because a
    *  legitimate value of 0.0 would be falsy with ||. */
-  S.gridXmin = parseFloat($('grid-xmin')?.value) ?? S.gridXmin;
-  S.gridXmax = parseFloat($('grid-xmax')?.value) ?? S.gridXmax;
-  S.gridYmin = parseFloat($('grid-ymin')?.value) ?? S.gridYmin;
-  S.gridYmax = parseFloat($('grid-ymax')?.value) ?? S.gridYmax;
-  S.gridZmin = parseFloat($('grid-zmin')?.value) ?? S.gridZmin;
-  S.gridZmax = parseFloat($('grid-zmax')?.value) ?? S.gridZmax;
+  S.gridXmin = Number.parseFloat($('grid-xmin')?.value) ?? S.gridXmin;
+  S.gridXmax = Number.parseFloat($('grid-xmax')?.value) ?? S.gridXmax;
+  S.gridYmin = Number.parseFloat($('grid-ymin')?.value) ?? S.gridYmin;
+  S.gridYmax = Number.parseFloat($('grid-ymax')?.value) ?? S.gridYmax;
+  S.gridZmin = Number.parseFloat($('grid-zmin')?.value) ?? S.gridZmin;
+  S.gridZmax = Number.parseFloat($('grid-zmax')?.value) ?? S.gridZmax;
 
   /* ── Update keyword preview elements ── */
   const setKw = (id, v) => { const el = $(id); if (el) el.textContent = v; };
@@ -592,15 +592,15 @@ function cutoffParamChange() {
   /* ── Read cutoff parameter inputs ──
    *  || fallback is safe here because 0 is never a valid value
    *  for any of these parameters (Emin > 0, Emax > 0, etc.). */
-  S.cutoffEmin         = parseFloat($('cutoff-emin')?.value)          || S.cutoffEmin;
-  S.cutoffEmax         = parseFloat($('cutoff-emax')?.value)          || S.cutoffEmax;
-  S.cutoffMaxParticles = parseInt($('cutoff-max-particles')?.value)   || S.cutoffMaxParticles;
-  S.cutoffNenergy      = parseInt($('cutoff-nenergy')?.value)         || S.cutoffNenergy;
-  S.cutoffMaxTrajTime  = parseInt($('cutoff-max-traj-time')?.value)   || S.cutoffMaxTrajTime;
+  S.cutoffEmin         = Number.parseFloat($('cutoff-emin')?.value)          || S.cutoffEmin;
+  S.cutoffEmax         = Number.parseFloat($('cutoff-emax')?.value)          || S.cutoffEmax;
+  S.cutoffMaxParticles = Number.parseInt($('cutoff-max-particles')?.value)   || S.cutoffMaxParticles;
+  S.cutoffNenergy      = Number.parseInt($('cutoff-nenergy')?.value)         || S.cutoffNenergy;
+  S.cutoffMaxTrajTime  = Number.parseInt($('cutoff-max-traj-time')?.value)   || S.cutoffMaxTrajTime;
 
   /* ── Sync directional map resolution inputs ── */
-  S.dirMapLonRes       = parseInt($('dirmap-lon-res')?.value)         || S.dirMapLonRes;
-  S.dirMapLatRes       = parseInt($('dirmap-lat-res')?.value)         || S.dirMapLatRes;
+  S.dirMapLonRes       = Number.parseInt($('dirmap-lon-res')?.value)         || S.dirMapLonRes;
+  S.dirMapLatRes       = Number.parseInt($('dirmap-lat-res')?.value)         || S.dirMapLatRes;
 
   /* ── Update keyword preview elements ── */
   const setKw = (id, v) => { const el = $(id); if (el) el.textContent = v; };
@@ -761,9 +761,9 @@ function updateDirMapVisibility() {
 function densityParamChange() {
   /* ── Read density parameter inputs ──
    *  || fallback is safe because 0 is never valid for these params. */
-  S.densEmin     = parseFloat($('dens-emin')?.value)    || S.densEmin;
-  S.densEmax     = parseFloat($('dens-emax')?.value)    || S.densEmax;
-  S.densNenergy  = parseInt($('dens-nenergy')?.value)   || S.densNenergy;
+  S.densEmin     = Number.parseFloat($('dens-emin')?.value)    || S.densEmin;
+  S.densEmax     = Number.parseFloat($('dens-emax')?.value)    || S.densEmax;
+  S.densNenergy  = Number.parseInt($('dens-nenergy')?.value)   || S.densNenergy;
 
   /* ── Update keyword preview elements ── */
   const setKw = (id, v) => { const el = $(id); if (el) el.textContent = v; };
@@ -836,11 +836,11 @@ function setDensSpacing(mode) {
  *      and spectral intensity.
  */
 function dsParamChange() {
-  S.dsEmin          = parseFloat($('ds-emin')?.value)          || S.dsEmin;
-  S.dsEmax          = parseFloat($('ds-emax')?.value)          || S.dsEmax;
-  S.dsNintervals    = parseInt($('ds-nintervals')?.value)      || S.dsNintervals;
-  S.dsMaxParticles  = parseInt($('ds-max-particles')?.value)   || S.dsMaxParticles;
-  S.dsMaxTrajTime   = parseInt($('ds-max-traj-time')?.value)   || S.dsMaxTrajTime;
+  S.dsEmin          = Number.parseFloat($('ds-emin')?.value)          || S.dsEmin;
+  S.dsEmax          = Number.parseFloat($('ds-emax')?.value)          || S.dsEmax;
+  S.dsNintervals    = Number.parseInt($('ds-nintervals')?.value)      || S.dsNintervals;
+  S.dsMaxParticles  = Number.parseInt($('ds-max-particles')?.value)   || S.dsMaxParticles;
+  S.dsMaxTrajTime   = Number.parseInt($('ds-max-traj-time')?.value)   || S.dsMaxTrajTime;
 
   /* ── Update keyword preview elements ── */
   const setKw = (id, v) => { const el = $(id); if (el) el.textContent = v; };
